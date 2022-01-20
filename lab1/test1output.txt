@@ -1,0 +1,6 @@
+Code run by **insert your name here**
+Environment variable ISUHPC is /Users/chenghau/ISU-HPC
+Environment variable MYHPC is /Users/chenghau/MY-HPC
+Imported numpy ok
+Imported matplotlib ok
+Imported pylab ok
