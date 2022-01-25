@@ -1,19 +1,20 @@
 
-Code run by **insert your name here**
-Environment variable ISUHPC is /Users/chenghau/ISU-HPC
-Environment variable MYHPC is /Users/chenghau/MY-HPC
+Code run by Cheng-Hau
+Environment variable ISUHPC is
+Environment variable MYHPC is
 
 which ipython returns...
+/Users/chenghau/anaconda3/bin//ipython
 
 which gcc returns...
-/usr/bin/gcc
+/usr/local/bin/gcc
 
 gcc --version returns...
-Apple clang version 13.0.0 (clang-1300.0.29.30)
-Target: x86_64-apple-darwin20.6.0
+Apple clang version 11.0.0 (clang-1100.0.33.17)
+Target: x86_64-apple-darwin20.1.0
 Thread model: posix
-InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
 Compiling and running a C code...
-Code run by  **insert your name here**
+Code run by  Cheng-Hau
 Successfully ran C program
