@@ -6,7 +6,7 @@
 #    $ bash test2h.sh > test2output.txt
 
 echo 
-echo Code run by Cheng-Hau
+echo Code run by  **insert your name here**
 echo Environment variable ISUHPC is $ISUHPC
 echo Environment variable MYHPC is $MYHPC
 
