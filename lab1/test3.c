@@ -7,7 +7,7 @@
 
 int main()
 {
-   printf("Code run by  **insert your name here**\n");
+   printf("Code run by  Cheng-Hau\n");
    printf("Successfully ran C program\n");
 
    return 0;
