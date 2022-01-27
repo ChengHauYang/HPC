@@ -26,7 +26,7 @@ def int2bin(x):
 
         for n in range(1,16):
             pw = 2**(15-n)
-            z = xmod/pw
+            z = int(xmod/pw) # fix for python3: int/int=float(py3)
             xmod = xmod - z*pw
             tmp = str(z)
             bin_string.append(tmp)
