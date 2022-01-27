@@ -37,12 +37,12 @@ if __name__ == "__main__":
 
     print("----------Binary to Integer----------")
     x = bin2int('1111111100000010')
-    print '1111111100000010'
+    print("1111111100000010")
     print("to")
-    print x
+    print(x)
 
     print("----------Integer to Binary----------")
     x = int2bin(-254)
-    print -254
+    print(-254)
     print("to")
-    print x
+    print(x)
