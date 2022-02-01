@@ -2,7 +2,7 @@ def bin2int(bin_string):
     a=[]
     M=len(bin_string)-1
     x=0
-    for n in range(0,M):
+    for n in range(0,M+1):
         a.append(bin_string[n])
         if n==0:
             x+=-int(a[n])*2**(M-n)
