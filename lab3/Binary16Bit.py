@@ -56,7 +56,7 @@ def print_b2i(bin_string,i):
     print("Binary = %s, to be Integer %s"  %(bin_string,i))
 
 def print_3b(bin1,bin2,binadd):
-    print("Binary1 %s, + Binary2 %s = Added Binary %s"  %(bin1,bin2,binadd))
+    print("Binary1 %s + Binary2 %s = Added Binary %s"  %(bin1,bin2,binadd))
 
 def print_i2b(bin_string,i):
     print("Integer = %s, to be Binary %s"  %(i,bin_string))
@@ -115,7 +115,7 @@ def add2bins(bin1,bin2):
 
 if __name__ == "__main__":
     test()
-    print("----------Add two Binary----------")    
+    print("----------Add two Binary----------")
     x=add2bins('0111111100000010','0111111100000010')
     print_3b('0111111100000010','0111111100000010',x)
 
