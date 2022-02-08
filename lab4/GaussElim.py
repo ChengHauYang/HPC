@@ -14,34 +14,36 @@ def LUfactor(A):
             L[j-1][k-1]=U[j-1][k-1]/U[k-1][k-1]
 
             for i in range(k,n+1):
-                U[j-1][i-1]=U[j-1][j-1]-L[j-1][k-1]*U[k-1][i-1]
+                U[j-1][i-1]=U[j-1][i-1]-L[j-1][k-1]*U[k-1][i-1]
 
             '''
             print(U[j-1][k-1])
             print(U[k-1][k-1])
             print(U[j-1][k-1]/U[k-1][k-1])
             '''
-            
-            
+
+
     return L,U
-    
+
 def determinant(A):
     [L,U]=LUfactor(A)
-    
+
     detL=1
     detU=1
     n=A.shape[0]
-    
+
     for i in range(n):
         detU=detU*U[i][i]
-    
+
     detA=detU*detL
-    
+
     return detA
 
 
 if __name__ == "__main__":
     import numpy as np
+    print('--------------A1--------------')
+
     A1 = np.array([[5.0,-1.0,2.0],[10.0,3.0,7.0],[15.0,17.0,19.0]],dtype=float)
     [L1,U1]=LUfactor(A1)
     print('L1')
@@ -50,10 +52,10 @@ if __name__ == "__main__":
     print(U1)
     print('L1*U1')
     print(np.dot(L1,U1))
-    
-    print('--------------A1--------------')
-    
-    
+
+
+    print('--------------A2--------------')
+
 
     A2 = np.array([[4.0,1.0,0.0,0.0],[1.0,4.0,1.0,0.0],[0.0,1.0,4.0,1.0],[0.0,0.0,1.0,4.0]],dtype=float)
     [L2,U2]=LUfactor(A2)
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     print('L2*U2')
     print(np.dot(L2,U2))
 
-    print('--------------A2--------------')
+    print('--------------A3--------------')
 
 
     A3 = np.array([[1.0,-2.0,-2.0,-3.0],[3.0,-9.0,0.0,-9.0],[-1.0,2.0,4.0,7.0],[-3.0,-6.0,-26.0,2.0]],dtype=float)
@@ -73,10 +75,26 @@ if __name__ == "__main__":
     print(L3)
     print('U3')
     print(U3)
+    print('L3*U3')
+    print(np.dot(L3,U3))
 
-    print('--------------A3--------------')
+    print('================Determinant================')
+
+    print('--------------A1--------------')
 
     detA1=determinant(A1)
-    #print(detA1)
+    print("determinant of A1:")
+    print("by HPC course code: %5.3f" %detA1)
+    print("check by numpy: %5.3f" %np.linalg.det(A1))
 
+    print('--------------A2--------------')
+    detA2=determinant(A2)
+    print("determinant of A2:")
+    print("by HPC course code: %5.3f" %detA2)
+    print("check by numpy: %5.3f" %np.linalg.det(A2))
 
+    print('--------------A3--------------')
+    detA3=determinant(A3)
+    print("determinant of A3:")
+    print("by HPC course code: %5.3f" %detA3)
+    print("check by numpy: %5.3f" %np.linalg.det(A3))
