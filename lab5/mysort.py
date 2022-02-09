@@ -5,6 +5,7 @@ to sort the input NumPy array Ain and return
 a NumPy array Aout, which is the sorted version
 of Ain (sorted from lowest value to greatest)
     '''
+
     lo=lo-1
     hi=hi-1
     if (hi==-100):
@@ -44,7 +45,7 @@ def filesort():
     '''
 
     A = read_input_file()
-    print(A)
+    #print(A)
     Aout=quicksort(A, 1, len(A))
     generate_output_file(Aout)
     return Aout
@@ -52,9 +53,8 @@ def filesort():
 
 def generate_output_file(A):
 
-    fid = open('input.data', 'w')
+    fid = open('sorted.data', 'w')
     for k in range(0,len(A)):
-        value = rand.uniform(0.0, 1000.0)
         fid.write("%12.6e" % A[k])
         fid.write("\n");
     fid.close()
@@ -90,26 +90,22 @@ def read_input_file():
 
 if __name__ == "__main__":
     import numpy as np
+    from numpy import copy
     A1 = np.array([1.0, 2.0, 3.0])
-    Asort1=quicksort(A1, 1, len(A1))
-    print(Asort1)
+    Asort1=quicksort(copy(A1), 1, len(A1))
+    print("%s ======sorted=====> %s" %(A1,Asort1))
 
     A2 = np.array([3.0, 2.0, 1.0])
-    Asort2=quicksort(A2, 1, len(A2))
-    print(Asort2)
+    Asort2=quicksort(copy(A2), 1, len(A2))
+    print("%s ======sorted=====> %s" %(A2,Asort2))
 
     A3 = np.array([-3.0, 2.0, -1.0])
-    Asort3=quicksort(A3, 1, len(A3))
-    print(Asort3)
+    Asort3=quicksort(copy(A3), 1, len(A3))
+    print("%s ======sorted=====> %s" %(A3,Asort3))
 
-    A4 = np.array([-3.0, 2.0, -1.0])
-    Asort4=quicksort(A4, 1, len(A4))
-    print(Asort4)
-
-    A5 = np.array([1.0, -2.0, 3.0, -4.0, 5.0, -6.0, 7.0])
-    Asort5=quicksort(A5, 1, len(A5))
-    print(Asort5)
-
+    A4 = np.array([1.0, -2.0, 3.0, -4.0, 5.0, -6.0, 7.0])
+    Asort4=quicksort(copy(A4), 1, len(A4))
+    print("%s ======sorted=====> %s" %(A4,Asort4))
 
     filesort()
 '''
