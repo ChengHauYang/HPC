@@ -109,6 +109,7 @@ def plotdata(x,y,a,infile):
     import matplotlib as mpl
     mpl.use('tkagg')
     from matplotlib import rc
+    import numpy as np
 
     rc('font',**{'family':'serif','serif':['Times']})
     rc('xtick', labelsize=18)
@@ -116,15 +117,15 @@ def plotdata(x,y,a,infile):
 
     fig,ax = plt.subplots(figsize=(8,6))
     plt.title(infile + ": Data + Least Squares Fit w/ Quad. Poly.", fontsize=18)
-    ax.plot(x,y,'-',color='blue')
-    ax.plot(x,a[0] + a[1]*x + a[2]*x**2,'--',color='red')
-    plt.legend(['data points','quadratic approximation'], prop={"size":15})
+    xx=np.linspace(min(x), max(x), num=100)
+    ax.plot(xx,a[0] + a[1]*xx + a[2]*xx**2,'--',color='red')
+    plt.scatter(x,y)
+    plt.legend(['quadratic approximation','data points'], prop={"size":15})
 
     ax.set_xlabel('x', fontsize=18)
     ax.set_ylabel('y', fontsize=18)
     plt.grid()
-    plt.show()
-
+    #plt.show()
     plt.savefig(infile+'.png', bbox_inches='tight')
 
 
