@@ -63,4 +63,7 @@ void Verlet(const int whichrun,
 
     // close file
     fclose(outfile);
+
+    // Call python script to plot
+    system("python phase_plot.py");
 }
