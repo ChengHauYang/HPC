@@ -11,7 +11,7 @@ int main()
    for (int i=1; i<=N; i=i+2)
    {
       k++;
-      printf("%i   ", i);
+      printf("%5i   ", i);
       if (k%5==0 && k !=1){
         printf("\n");
       }
