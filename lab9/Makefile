@@ -1,4 +1,3 @@
-# $ISUHPC/lectures/lecture11/codes/fraction/Makefile6
 CC = gcc
 FFLAGS = -O3
 LFFLAG =
