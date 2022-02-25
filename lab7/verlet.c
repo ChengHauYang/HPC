@@ -45,7 +45,7 @@ void Verlet(const int whichrun,
     for (int i=0;i<NumSteps;i++){
       vstar=v[i]+0.5*dt*(u[i]-pow(u[i],3));
       u[i+1]=u[i]+dt*vstar;
-      v[i+1]=v[i]+dt*(u[i+1]-pow(u[i+1],3));
+      v[i+1]=vstar+0.5*dt*(u[i+1]-pow(u[i+1],3));
     }
 
     // Print solution to file
