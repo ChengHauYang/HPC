@@ -83,9 +83,10 @@ int main()
     vget(v,i)=1;
   }
 
-
+/*
   print_matrix(&A);
   print_vector(&v);
+*/
 
   double TOL = 1e-8;
   int MaxIters = 500;
@@ -98,5 +99,60 @@ int main()
   double RQiter(vector* v, double TOL, int MaxIters, matrix* A);
   double lambda2 = RQiter(&v,  TOL,  MaxIters, &A);
   printf("largest eigenvalue: %10.8e\n", lambda2);
+
+  printf("================================================= \n");
+
+  int N;
+  printf("\n Input N of matrix:");
+  scanf("%i", &N);
+
+  matrix OneTwoOne(const int N);
+  matrix A1 = OneTwoOne(N);
+  vector v1 = new_vector(N);
+  for(int i=1; i<=N; i++ ){
+    vget(v1,i)=1;
+  }
+  /*
+  print_matrix(&A1);
+  print_vector(&v1);
+  */
+  vector PowIterGuessVector(vector* v, double TOL, int MaxIters, matrix* A);
+  vector GuessEigenVector = PowIterGuessVector(&v1,  TOL,  10, &A1);
+  print_vector(&GuessEigenVector);
+  double lambdaN = RQiter(&GuessEigenVector,  TOL,  MaxIters, &A1);
+/*
+  print_matrix(&A1);
+  print_vector(&v1);
+*/
+  printf("largest eigenvalue (Guess_RQ): %10.8e\n", lambdaN);
+  double lambdaN1 = RQiter(&v1,  TOL,  MaxIters, &A1);
+  printf("largest eigenvalue (RQ): %10.8e\n", lambdaN1);
+  double lambdaN2 = PowIter(&v1,  TOL,  MaxIters, &A1);
+  printf("largest eigenvalue (POW): %10.8e\n", lambdaN2);
+
+  printf("================================================= \n");
+  for (int N=10;N<=160;N=N*2){
+    printf("===================<N: %i>=====================\n", N);
+    matrix OneTwoOne(const int N);
+    matrix A1 = OneTwoOne(N);
+    vector v1 = new_vector(N);
+    for(int i=1; i<=N; i++ ){
+      vget(v1,i)=1;
+    }
+
+    //print_matrix(&A1);
+    //print_vector(&v1);
+
+    vector PowIterGuessVector(vector* v, double TOL, int MaxIters, matrix* A);
+    vector GuessEigenVector = PowIterGuessVector(&v1,  TOL,  N, &A1);
+    print_vector(&GuessEigenVector);
+    double lambdaN = RQiter(&GuessEigenVector,  TOL,  MaxIters, &A1);
+    printf("largest eigenvalue (Guess_RQ): %10.8e\n", lambdaN);
+    double lambdaN1 = RQiter(&v1,  TOL,  MaxIters, &A1);
+    printf("largest eigenvalue (RQ): %10.8e\n", lambdaN1);
+    double lambdaN2 = PowIter(&v1,  TOL,  2000, &A1);
+    printf("largest eigenvalue (POW): %10.8e\n", lambdaN2);
+
+  }
 
 }

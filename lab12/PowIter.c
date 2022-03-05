@@ -72,3 +72,34 @@ double PowIter(vector* v, double TOL, int MaxIters, matrix* A)
 
     return lambda;
 }
+
+
+vector PowIterGuessVector(vector* v, double TOL, int MaxIters, matrix* A)
+{
+    vector v_norm = NormalizeVecor(v);
+    //printf("normal:%10.3e\n", normal);
+    //print_vector(&v_norm);
+    //print_matrix(A);
+
+    double lambda = GetLamda(&v_norm,A);
+    //printf("Lamda:%10.8e\n", lambda);
+    double lambda_old = 0;
+    int mstop = 0;
+    int k = 0;
+    while (mstop ==0){
+      k++;
+      vector w = matrix_vector_mult(A,&v_norm);
+      v_norm = NormalizeVecor(&w);
+      if ((fabs(lambda-lambda_old) < TOL) || (k==MaxIters)){
+        mstop =1;
+      }
+      lambda_old = lambda;
+      lambda = GetLamda(&v_norm,A);
+      //printf("%10.8e\n", lambda);
+    }
+
+    //printf("Iterations: %d\n", k);
+    //printf("Lamda:%10.8e\n", lambda);
+
+    return v_norm;
+}

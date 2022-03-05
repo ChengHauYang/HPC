@@ -35,6 +35,17 @@ matrix ObtainLHS(const matrix* A,const int lamda)
   return C;
 }
 
+matrix OneTwoOne(const int N)
+{
+  matrix A = new_matrix(N,N);
+  for(int i=1; i<=N; i++ )
+    for (int j=1; j<=N; j++ )
+      {
+        mget(A,i,j) = 2.0*(i==j)
+                    -  1.0*(i-1==j) - 1.0*(j-1==i);
+      }
+  return A;
+}
 
 double RQiter(vector* v, double TOL, int MaxIters, matrix* A)
 {
