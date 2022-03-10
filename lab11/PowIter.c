@@ -36,6 +36,8 @@ double GetLamda(const vector* x,const matrix* A)
   vector Ax=matrix_vector_mult(A,x);
   double Lamda = 0;
 
+  //printf("size of vector%d\n", x->size);
+
   for (int i=1;i<=x->size;i++){
     Lamda += vget(Ax,i)*vgetp(x,i);
   }
@@ -59,11 +61,14 @@ double PowIter(vector* v, double TOL, int MaxIters, matrix* A)
       k++;
       vector w = matrix_vector_mult(A,&v_norm);
       v_norm = NormalizeVecor(&w);
+      //printf("Eigen Vector:\n");
+      //print_vector(&v_norm);
+      lambda_old = lambda;
+      lambda = GetLamda(&v_norm,A);
       if ((fabs(lambda-lambda_old) < TOL) || (k==MaxIters)){
         mstop =1;
       }
-      lambda_old = lambda;
-      lambda = GetLamda(&v_norm,A);
+      //printf("Eigen Value=");
       //printf("%10.8e\n", lambda);
     }
 
