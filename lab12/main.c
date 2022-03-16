@@ -188,7 +188,7 @@ vector InversePowIterGuessVector(double mu, vector* v, double TOL, int MaxIters,
     time1 = clock();
 
     double total_time=((double)((time1-time0))/((double)(CLOCKS_PER_SEC)));
-    times[k] = total_time;
+    times[k] = total_time; 
     k++;
 
 /*
