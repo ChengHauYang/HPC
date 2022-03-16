@@ -43,7 +43,7 @@ double GetLamda(const vector* x,const matrix* A)
   return Lamda;
 }
 
-double PowIter(vector* v, double TOL, int MaxIters, matrix* A)
+double PowIter(const vector* v, double TOL, int MaxIters,const matrix* A)
 {
     vector v_norm = NormalizeVecor(v);
     //printf("normal:%10.3e\n", normal);
@@ -74,7 +74,7 @@ double PowIter(vector* v, double TOL, int MaxIters, matrix* A)
 }
 
 
-vector PowIterGuessVector(vector* v, double TOL, int MaxIters, matrix* A)
+vector PowIterGuessVector(const vector* v, double TOL, int MaxIters,const matrix* A)
 {
     vector v_norm = NormalizeVecor(v);
     //printf("normal:%10.3e\n", normal);
@@ -90,16 +90,42 @@ vector PowIterGuessVector(vector* v, double TOL, int MaxIters, matrix* A)
       k++;
       vector w = matrix_vector_mult(A,&v_norm);
       v_norm = NormalizeVecor(&w);
+      lambda_old = lambda;
+      lambda = GetLamda(&v_norm,A);
+      //if ((fabs(lambda-lambda_old) < TOL) || (k==MaxIters)){
       if ((fabs(lambda-lambda_old) < TOL) || (k==MaxIters)){
         mstop =1;
       }
-      lambda_old = lambda;
-      lambda = GetLamda(&v_norm,A);
       //printf("%10.8e\n", lambda);
     }
 
     //printf("Iterations: %d\n", k);
     //printf("Lamda:%10.8e\n", lambda);
+
+    return v_norm;
+}
+
+vector InversePowIterGuessVector(double mu, const vector* v, double TOL, int MaxIters,const matrix* A) {
+
+    vector v_norm = NormalizeVecor(v);
+    double lambda = GetLamda(&v_norm,A);
+    double lambda_old = 0;
+    int mstop=0, k=0;
+
+    while (mstop==0) {
+        k++;
+        //printf("%.8f\n",lambda);
+
+        matrix ObtainLHS(const matrix* A,const int lamda);
+        matrix LHS = ObtainLHS(A,mu);
+        vector w = solve(&LHS,&v_norm);
+        v_norm = NormalizeVecor(&w);
+        lambda_old = lambda;
+        lambda = GetLamda(&v_norm,A);
+        if ((fabs(lambda-lambda_old) < TOL) || (k==MaxIters)){
+          mstop =1;
+        }
+    }
 
     return v_norm;
 }

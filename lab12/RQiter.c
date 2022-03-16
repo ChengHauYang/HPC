@@ -17,7 +17,7 @@ matrix IdentityMatrix(const int num, const int col)
   return C;
 }
 
-matrix ObtainLHS(const matrix* A,const int lamda)
+matrix ObtainLHS(const matrix* A,const double lamda)
 {
   const int col = A->cols;
   matrix C = new_matrix(col,col);
@@ -28,7 +28,7 @@ matrix ObtainLHS(const matrix* A,const int lamda)
         if (j != i){
           mget(C,i,j) = mgetp(A,i,j);
         } else
-          mget(C,i,i) = mgetp(A,i,j)-lamda;
+          mget(C,i,i) = mgetp(A,i,i)-lamda;
       }
   }
 
@@ -47,7 +47,7 @@ matrix OneTwoOne(const int N)
   return A;
 }
 
-double RQiter(vector* v, double TOL, int MaxIters, matrix* A)
+double RQiter(const vector* v, double TOL, int MaxIters,const matrix* A)
 {
     vector NormalizeVecor(const vector* v);
     vector v_norm = NormalizeVecor(v);
@@ -67,14 +67,17 @@ double RQiter(vector* v, double TOL, int MaxIters, matrix* A)
 
     while (mstop ==0){
       k++;
+      //printf("lambda:%10.3e\n", lambda);
       matrix LHS = ObtainLHS(A,lambda);
+      //print_matrix(&LHS);
       vector w = solve(&LHS,&v_norm);
       v_norm = NormalizeVecor(&w);
+      //print_vector(&v_norm);
+      lambda_old = lambda;
+      lambda = GetLamda(&v_norm,A);
       if ((fabs(lambda-lambda_old) < TOL) || (k==MaxIters)){
         mstop =1;
       }
-      lambda_old = lambda;
-      lambda = GetLamda(&v_norm,A);
       //printf("%10.8e\n", lambda);
     }
 
