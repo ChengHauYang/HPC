@@ -7,7 +7,15 @@ int FindZero(trimatrix* T)
   const int N = T->rows;
   int k=0;
   int mfound=0;
-  double TOL = 1.0e-15;
+
+/*
+ you are having difficulty getting the QR algorithm to converge, consider changing the
+     tolerance TOL by editing the FindZero.c file and changing the line
+*/
+
+//  double TOL = 1.0e-15;
+  double TOL = 1.0e-12;
+
 
   while (mfound==0 && k<(N-1))
     {
