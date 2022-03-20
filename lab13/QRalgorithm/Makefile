@@ -1,7 +1,7 @@
 # $ISUHPC/lectures/lecture12/codes/matrix/Makefile
 CC = gcc
-FFLAGS = -O3 -Wall -pg
-LFLAGS = -lm -pg 
+FFLAGS = -O3 -Wall
+LFLAGS = 
 OBJECTS = main.o \
 matrix.o \
 trimatrix.o \
