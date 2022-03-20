@@ -1,7 +1,7 @@
 # $ISUHPC/lectures/lecture12/codes/matrix/Makefile
 CC = gcc
 FFLAGS = -O3 -Wall
-LFLAGS =
+LFLAGS = -lm
 OBJECTS = main.o \
 matrix.o \
 trimatrix.o \
@@ -12,7 +12,7 @@ FindZero.o \
 GetShift.o
 
 main.exe: $(OBJECTS)
-	$(CC) $(LFLAGS) $(OBJECTS) -o main.exe
+	$(CC)  $(OBJECTS) -o main.exe $(LFLAGS)
 
 %.o: %.c
 	$(CC) $(FFLAGS) -c $<
