@@ -129,6 +129,7 @@ double TimesCondi[5];
 double conditionnumbers[5];
 
 for (int i=0;i<5;i++){
+//for (int i=2;i<3;i++){
   printf("\n===================<N: %i>=====================\n", MatrixSize[i]);
   clock_t time0, time1, time2, time3, time4, time5;
 
