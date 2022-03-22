@@ -52,6 +52,9 @@ void QRA(trimatrix* T)
           for (int i=1; i<=N; i++)
             { tset(T,i,i, tget(T,i,i) + mu ); }
 
+          // cleanup
+          delete_matrix(&R);
+
           // Recursive call to QR algorithm
           QRA(T);
         }

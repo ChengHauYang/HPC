@@ -49,8 +49,11 @@ void Hessenberg(const matrix* Ain, trimatrix* T)
       double normV = sqrt(pow(normX,2) - pow(vget(x,1),2)
                    + pow(vget(v,1),2));
 
-      for (int j=1; j<=(N-k); j++)
-        { vget(v,j) = vget(v,j)/normV; }
+      if (normV>1.0e-12)
+        {
+          for (int j=1; j<=(N-k); j++)
+            { vget(v,j) = vget(v,j)/normV; }
+        }
 
       // Part 2: apply reflector to (k+1):N by k:N block of A
       for (int i=1; i<=(N+1-k); i++)

@@ -35,15 +35,18 @@ matrix OneTwoOne(const int N)
 {
   matrix A = new_matrix(N,N);
   double adding = 1/(double)N/(double)N;
+  double mult = (double)N*(double)N;
   //printf("%d\n", N);
   //printf("%10.8e \n", adding);
 
   for(int i=1; i<=N; i++ )
     for (int j=1; j<=N; j++ )
       {
-        mget(A,i,j) = (2.0+adding)*(i==j)
-                    -  1.0*(i-1==j) - 1.0*(j-1==i);
+        mget(A,i,j) = mult*(2.0+adding)*(i==j)
+                    -  mult*1.0*(i-1==j) - mult*1.0*(j-1==i);
       }
+  mget(A,N,1) = - mult*1.0;
+  mget(A,1,N) = - mult*1.0;
   return A;
 }
 
@@ -146,6 +149,12 @@ for (int i=0;i<5;i++){
   printf("\n");
   printf("Original Matrix:\n");
   print_matrix(&A);
+*/
+
+/*
+  printf("\n");
+  printf("Original Matrix:\n");
+  print_matrix(&A);
   printf("Reduction to Tridiagonal Form:\n");
   print_trimatrix(&T);
 */
@@ -163,6 +172,7 @@ for (int i=0;i<5;i++){
 */
 
   double smallest_abs_eig,largest_abs_eig;
+
 
   time4 = clock();
   double conditionnumber=ConditionNumber(&T,&smallest_abs_eig,&largest_abs_eig);
@@ -190,7 +200,7 @@ for (int i=0;i<5;i++){
   printf("Hessenberg time scale with N:%10.3e\n",(log(TimesHessenberg[4])-log(TimesHessenberg[0]))/(log(MatrixSize[4])-log(MatrixSize[0])));
   printf("QRA time scale with N:%10.3e\n",(log(TimesQRA[4])-log(TimesQRA[0]))/(log(MatrixSize[4])-log(MatrixSize[0])));
   printf("ConditionNumber time scale with N:%10.3e\n",(log(TimesCondi[2])-log(TimesCondi[0]))/(log(MatrixSize[2])-log(MatrixSize[0])));
-  printf("conditionnumber with N:%10.3e\n",(log(conditionnumbers[4])-log(conditionnumbers[0]))/(log(MatrixSize[4])-log(MatrixSize[0])));
+  printf("conditionnumber scale with N:%10.3e\n",(log(conditionnumbers[4])-log(conditionnumbers[0]))/(log(MatrixSize[4])-log(MatrixSize[0])));
 
 
   // print solution to file

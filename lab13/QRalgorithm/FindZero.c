@@ -14,7 +14,7 @@ int FindZero(trimatrix* T)
 */
 
 //  double TOL = 1.0e-15;
-  double TOL = 1.0e-12;
+  double TOL = 1.0e-10;
 
 
   while (mfound==0 && k<(N-1))
