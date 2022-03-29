@@ -1,0 +1,237 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  us/call  us/call  name    
+ 43.88      0.25     0.25      635   393.88   393.88  QRdecomp
+ 36.86      0.46     0.21      635   330.86   330.86  Householder
+ 17.55      0.56     0.10                             FindZero
+  1.76      0.57     0.01                             Hessenberg
+  0.00      0.57     0.00   193150     0.00     0.00  tset
+  0.00      0.57     0.00    35990     0.00     0.00  trimatrix_add
+  0.00      0.57     0.00     2552     0.00     0.00  print_matrix_full
+  0.00      0.57     0.00     1580     0.00     0.00  GetShift
+  0.00      0.57     0.00     1565     0.00     0.00  print_trimatrix_full
+  0.00      0.57     0.00     1300     0.00     0.00  print_vector_full
+  0.00      0.57     0.00      659     0.00     0.00  matrix_vector_mult
+  0.00      0.57     0.00      635     0.00     0.00  QRA
+  0.00      0.57     0.00      635     0.00     0.00  matrix_mult_to_trimatrix
+  0.00      0.57     0.00      620     0.00     0.00  grab_sub_trimatrix
+  0.00      0.57     0.00      310     0.00     0.00  merge_sub_trimatrix
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 1.75% of 0.57 seconds
+
+index % time    self  children    called     name
+                                 635             QRA <cycle 1> [13]
+[1]     43.9    0.25    0.00     635         QRdecomp <cycle 1> [1]
+                0.00    0.00     635/2552        print_matrix_full [8]
+                                 635             Householder <cycle 1> [2]
+-----------------------------------------------
+                                 635             QRdecomp <cycle 1> [1]
+[2]     36.8    0.21    0.00     635         Householder <cycle 1> [2]
+                0.00    0.00     635/2552        print_matrix_full [8]
+                0.00    0.00     635/1300        print_vector_full [11]
+                0.00    0.00     635/659         matrix_vector_mult [12]
+                                 635             QRA <cycle 1> [13]
+-----------------------------------------------
+                                                 <spontaneous>
+[3]     17.5    0.10    0.00                 FindZero [3]
+-----------------------------------------------
+                                                 <spontaneous>
+[4]      1.8    0.01    0.00                 Hessenberg [4]
+                0.00    0.00     936/35990       trimatrix_add [7]
+                0.00    0.00      30/1300        print_vector_full [11]
+                0.00    0.00      24/659         matrix_vector_mult [12]
+                0.00    0.00       6/2552        print_matrix_full [8]
+-----------------------------------------------
+                0.00    0.00     635/193150      __libc_csu_init [55]
+                0.00    0.00   53569/193150      GetShift [9]
+                0.00    0.00  138946/193150      QRA <cycle 1> [13]
+[6]      0.0    0.00    0.00  193150         tset [6]
+-----------------------------------------------
+                0.00    0.00     936/35990       Hessenberg [4]
+                0.00    0.00   35054/35990       QRA <cycle 1> [13]
+[7]      0.0    0.00    0.00   35990         trimatrix_add [7]
+-----------------------------------------------
+                0.00    0.00       6/2552        OneTwoOne [18]
+                0.00    0.00       6/2552        Hessenberg [4]
+                0.00    0.00     635/2552        matrix_mult_to_trimatrix [14]
+                0.00    0.00     635/2552        QRA <cycle 1> [13]
+                0.00    0.00     635/2552        Householder <cycle 1> [2]
+                0.00    0.00     635/2552        QRdecomp <cycle 1> [1]
+[8]      0.0    0.00    0.00    2552         print_matrix_full [8]
+-----------------------------------------------
+                0.00    0.00    1580/1580        QRA <cycle 1> [13]
+[9]      0.0    0.00    0.00    1580         GetShift [9]
+                0.00    0.00   53569/193150      tset [6]
+-----------------------------------------------
+                0.00    0.00    1565/1565        QRA <cycle 1> [13]
+[10]     0.0    0.00    0.00    1565         print_trimatrix_full [10]
+-----------------------------------------------
+                0.00    0.00      30/1300        Hessenberg [4]
+                0.00    0.00     635/1300        matrix_mult_to_trimatrix [14]
+                0.00    0.00     635/1300        Householder <cycle 1> [2]
+[11]     0.0    0.00    0.00    1300         print_vector_full [11]
+-----------------------------------------------
+                0.00    0.00      24/659         Hessenberg [4]
+                0.00    0.00     635/659         Householder <cycle 1> [2]
+[12]     0.0    0.00    0.00     659         matrix_vector_mult [12]
+-----------------------------------------------
+                                 620             QRA <cycle 1> [13]
+                                 635             Householder <cycle 1> [2]
+[13]     0.0    0.00    0.00     635+620     QRA <cycle 1> [13]
+                0.00    0.00  138946/193150      tset [6]
+                0.00    0.00   35054/35990       trimatrix_add [7]
+                0.00    0.00    1580/1580        GetShift [9]
+                0.00    0.00    1565/1565        print_trimatrix_full [10]
+                0.00    0.00     635/2552        print_matrix_full [8]
+                0.00    0.00     635/635         matrix_mult_to_trimatrix [14]
+                0.00    0.00     620/620         grab_sub_trimatrix [15]
+                0.00    0.00     310/310         merge_sub_trimatrix [16]
+                                 635             QRdecomp <cycle 1> [1]
+                                 620             QRA <cycle 1> [13]
+-----------------------------------------------
+                0.00    0.00     635/635         QRA <cycle 1> [13]
+[14]     0.0    0.00    0.00     635         matrix_mult_to_trimatrix [14]
+                0.00    0.00     635/2552        print_matrix_full [8]
+                0.00    0.00     635/1300        print_vector_full [11]
+-----------------------------------------------
+                0.00    0.00     620/620         QRA <cycle 1> [13]
+[15]     0.0    0.00    0.00     620         grab_sub_trimatrix [15]
+-----------------------------------------------
+                0.00    0.00     310/310         QRA <cycle 1> [13]
+[16]     0.0    0.00    0.00     310         merge_sub_trimatrix [16]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+   [3] FindZero               [15] grab_sub_trimatrix     [11] print_vector_full
+   [9] GetShift               [14] matrix_mult_to_trimatrix [7] trimatrix_add
+   [4] Hessenberg             [12] matrix_vector_mult      [6] tset
+   [2] Householder            [16] merge_sub_trimatrix     (5) <cycle 1>
+  [13] QRA                     [8] print_matrix_full
+   [1] QRdecomp               [10] print_trimatrix_full

@@ -1,0 +1,1 @@
+ With  1 threads, clock_time = 1.05361e-01 (sec)

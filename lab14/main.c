@@ -1,4 +1,4 @@
-#include <TargetConditionals.h>
+//#include <TargetConditionals.h> // need if you compiles using my Macbook
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -20,14 +20,16 @@ int main(int argc, char* argv[])
 
    srand( time(NULL) );
    vector v = new_vector(N);
-   print_vector(&v);
+   //print_vector(&v);
 
    matrix m = new_matrix(N,N);
-   print_matrix(&m);
+   //print_matrix(&m);
 
-   const double time1 = omp_get_wtime();
+//   const double time1 = omp_get_wtime();
 
    vector Ax = new_vector(N);
+
+   const double time1 = omp_get_wtime();
 
 #  pragma omp parallel for num_threads(thread_count)
    for (int i=1; i<=N; i++)
@@ -38,7 +40,7 @@ int main(int argc, char* argv[])
       vget(Ax,i) = tmp;
    }
 
-   print_vector(&Ax);
+   //print_vector(&Ax);
 
 
    const double time2 = omp_get_wtime();
