@@ -3,7 +3,7 @@
 #LFLAGS = -L/usr/local/opt/llvm/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
 CC = gcc
 FFLAGS = -O3 -std=c99 -Wall -fopenmp
-LFLAGS = -lgomp
+LFLAGS = -lgomp -lm
 
 OBJECTS = main_mp.o
 
