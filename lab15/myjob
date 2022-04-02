@@ -10,7 +10,8 @@
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 
-./main.exe 10 > output10.txt
-./main.exe 20 > output20.txt
-./main.exe 40 > output40.txt
-./main.exe 80 > output80.txt
+./main.exe 1  16777216 > output01.txt
+./main.exe 2  16777216 > output02.txt
+./main.exe 4  16777216 > output04.txt
+./main.exe 8  16777216 > output08.txt
+./main.exe 16 16777216 > output16.txt

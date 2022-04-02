@@ -1,18 +1,11 @@
-#CC = /usr/local/opt/llvm/bin/clang
-#FFLAGS = -I/usr/local/opt/llvm/include -Wall -fopenmp
-#FLAGS = -L/usr/local/opt/llvm/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
-CC = /usr/local/opt/llvm/bin/clang
-FFLAGS = -I/usr/local/opt/llvm/include -std=c99  -Wall -fopenmp
-LFLAGS = -L/usr/local/opt/llvm/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib  -lgomp -lm
-
-#CC = gcc
-#FFLAGS = -std=c99 -Wall -fopenmp
-#FLAGS = -lgomp -lm
+CC = gcc
+FFLAGS = -std=c99 -Wall -fopenmp
+LFLAGS = -lgomp -lm
 
 OBJECTS = main_mp.o
 
 main.exe:  $(OBJECTS)
-	$(CC)  $(OBJECTS) -o main.exe $(LFLAGS)
+	$(CC)  $(OBJECTS) -o main_mp.exe $(LFLAGS)
 
 %.o: %.c
 	$(CC) $(FFLAGS) -c $<
