@@ -35,8 +35,6 @@ int main(int argc, char* argv[])
    printf("N\t\t Error\t\t  Ratio of two consecutive errors\n"); //titles
    printf("======================================================================\n");
    for (int i=0;i<8;i++){
-     T = CompSimps(a,b,N[i]);
-     err[i] = fabs(T-Iex);
      if (i!=7){
        printf("%i\t\t %12.5e\t\t %12.5e\n", N[i], err[i], err[i]/err[i+1]);
      } else{
