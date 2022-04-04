@@ -15,7 +15,7 @@ int main()
    double times[num_test];
    double pi_cal[num_test];
    for (int i=0;i<num_test;i++){
-     N[i]=pow(10,i+1);
+     N[i]=pow(10,i+1  );
    }
 
    double x,y,r,pi;
@@ -51,9 +51,26 @@ int main()
    printf("N\t\t Cpu Time \t\t  Relative Error\n"); //titles
    printf("======================================================================\n");
    for (int i=0;i<num_test;i++){
-     printf("%i\t\t %12.5e\t\t %12.5e\n", N[i], times[i], fabs((pi_cal[i]-M_PI)/M_PI));
+     printf("%i\t\t %13.6e\t\t %13.6e\n", N[i], times[i], fabs((pi_cal[i]-M_PI)/M_PI));
    }
    printf("-------------------------------------------------------------------- \n");
+
+   /// Print solution to file
+   char filename[] = "mc_pi_table.txt";
+
+   // open file
+   FILE* outfile = fopen(filename,"w");
+
+   // output data
+   fprintf(outfile,"N\t\t,cpu time\t\t,relative error \n");
+   for (int i=0;i<num_test;i++){
+     fprintf(outfile,"%d\t\t",N[i]);
+     fprintf(outfile,",%25.20e\t\t",times[i]);
+     fprintf(outfile,",%25.20e\n",fabs((pi_cal[i]-M_PI)/M_PI));
+   }
+
+   // close file
+   fclose(outfile);
 
    return 0;
 }
