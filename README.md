@@ -5,7 +5,12 @@ Lab
 Composite Simpson’s Rule and OpenMP
 ```
 
-### Lab 15
+### Lab 16
 ```bash
 Estimating pi using parallel and serial codes
+```
+
+### Lab 17
+```bash
+Estimating pi using MPI
 ```
