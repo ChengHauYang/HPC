@@ -180,6 +180,19 @@ vector* scale_vector(const vector* x, double scaling)
   return &z;
 }
 
+vector scale_vectorTrue(const vector* x, double scaling)
+{
+  const int size = x->size;
+  vector z = new_vector(size);
+
+  for (int i=1; i<=size; i++)
+  {
+    vget(z,i) += vgetp(x,i)*scaling;
+  }
+
+  return z;
+}
+
 void print_vector_full(const vector* vec, char* varname)
 {
   assert(vec->size>0);
@@ -358,19 +371,26 @@ vector solveCG(const matrix* A, const vector* b)
   double residual = GetNormal(&r);
 
 
-  vector q;
+  vector q = new_vector(size);
+  vector temp = new_vector(size);  
   double alpha,rho_old, beta,residual_old,residual_ori;
 
   residual_ori = residual;
   for (int iter=1;iter<=5000;iter++){
     q = matrix_vector_mult(A,&p);
     alpha = rho/(vector_dot_mult(&p,&q));
-    x=vector_add(&x,scale_vector(&p,alpha));
-    r=vector_add(&r,scale_vector(&q,-alpha));
+    //x=vector_add(&x,scale_vector(&p,alpha));
+    //r=vector_add(&r,scale_vector(&q,-alpha));
+    temp=scale_vectorTrue(&p,alpha);
+    x=vector_add(&x,&temp);
+    temp=scale_vectorTrue(&q,-alpha);
+    r=vector_add(&r,&temp);    
     rho_old = rho;
     rho =vector_dot_mult(&r,&r);
     beta = rho / rho_old;
-    p=vector_add(&r,scale_vector(&p,beta));
+    //p=vector_add(&r,scale_vector(&p,beta));
+    temp=scale_vectorTrue(&p,beta);
+    p=vector_add(&r,&temp);
 
     residual_old = residual;
     residual = GetNormal(&r);
