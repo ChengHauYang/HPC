@@ -125,6 +125,15 @@ int main(int argc, char *argv[])
   if (my_rank == 0)
   {
 
+    // output data
+    fprint( "N\t\t,cpu time\t\t,relative error \n");
+    for (int i = 0; i < num_test; i++)
+    {
+      fprint("%d\t\t", Nall[i]);
+      fprint(",%25.20e\t\t", times[i]);
+      fprint(",%25.20e\n", fabs((pi_cal[i] - M_PI) / M_PI));
+    }
+
     /// Print solution to file
     char filename[] = "mc_pi_table.txt";
 
