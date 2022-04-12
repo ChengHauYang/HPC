@@ -115,10 +115,12 @@ int main(int argc, char *argv[])
     {
       double time_end = MPI_Wtime();
       double time_elapsed = time_end - time_start;
+      /*
       printf(" NP = %2i, N = %i, relative error = %20.13e\n",
              comm_sz, N, fabs((pi - M_PI) / M_PI));
       printf("     Elapsed time = %20.13e\n",
              time_elapsed);
+      */
       times[i] = time_elapsed;
     }
   }
@@ -126,12 +128,12 @@ int main(int argc, char *argv[])
   {
 
     // output data
-    fprint( "N\t\t,cpu time\t\t,relative error \n");
+    printf( "N\t\t,cpu time\t\t,relative error \n");
     for (int i = 0; i < num_test; i++)
     {
-      fprint("%d\t\t", Nall[i]);
-      fprint(",%25.20e\t\t", times[i]);
-      fprint(",%25.20e\n", fabs((pi_cal[i] - M_PI) / M_PI));
+      printf("%d\t\t", Nall[i]);
+      printf(",%25.20e\t\t", times[i]);
+      printf(",%25.20e\n", fabs((pi_cal[i] - M_PI) / M_PI));
     }
 
     /// Print solution to file
