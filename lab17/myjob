@@ -10,10 +10,10 @@
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 module load intel
-make clean
-make
-mpirun -np 1  main.exe  > output1.data
-mpirun -np 2  main.exe  > output2.data
-mpirun -np 4  main.exe  > output4.data
-mpirun -np 8  main.exe  > output8.data
-mpirun -np 16 main.exe  > output16.data
+#make -f MakefileHPC clean
+#make -f MakefileHPC
+mpirun -np 1  ./main.exe  > output1.data
+mpirun -np 2  ./main.exe  > output2.data
+mpirun -np 4  ./main.exe  > output4.data
+mpirun -np 8  ./main.exe  > output8.data
+mpirun -np 16 ./main.exe  > output16.data

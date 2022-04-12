@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   // Grab the global N parameter
   // and set the local N parameter
 
-  int num_test = 6;
+  int num_test = 9;
   int Nall[num_test];
   double times[num_test];
   double pi_cal[num_test];
@@ -124,7 +124,8 @@ int main(int argc, char *argv[])
       times[i] = time_elapsed;
     }
   }
-  if (my_rank == 0)
+  
+if (my_rank == 0)
   {
 
     // output data
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
       printf(",%25.20e\t\t", times[i]);
       printf(",%25.20e\n", fabs((pi_cal[i] - M_PI) / M_PI));
     }
-
+/*
     /// Print solution to file
     char filename[] = "mc_pi_table.txt";
 
@@ -153,6 +154,7 @@ int main(int argc, char *argv[])
 
     // close file
     fclose(outfile);
+*/  
   }
   // End program
   MPI_Finalize();
