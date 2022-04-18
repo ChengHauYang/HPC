@@ -1,6 +1,8 @@
 
-# Required Dependencies
-Latex
+Required Dependencies
+============
+
+### Latex
 ```
 sudo apt-get install dvipng texlive-latex-extra texlive-fonts-recommended 
 ```
