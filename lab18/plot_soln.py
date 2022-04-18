@@ -60,7 +60,7 @@ def plot_soln(create_png=False):
             tmp_index = tmp_index+1
 
     # plot the result
-    plt.rc("font", size=16);
+    plt.rc("font", size=12);
     for NumFrame in range(0,11):
 
         plt.figure(NumFrame)
