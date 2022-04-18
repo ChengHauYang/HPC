@@ -14,3 +14,8 @@ Estimating pi using parallel and serial codes
 ```bash
 Estimating pi using MPI
 ```
+
+### Lab 18
+```bash
+2-way Advection Equation using MPI
+```
