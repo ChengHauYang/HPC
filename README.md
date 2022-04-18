@@ -1,3 +1,10 @@
+
+# Required Dependencies
+Latex
+```
+sudo apt-get install dvipng texlive-latex-extra texlive-fonts-recommended 
+```
+
 Lab
 ============
 ### Lab 15
