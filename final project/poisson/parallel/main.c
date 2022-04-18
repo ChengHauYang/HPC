@@ -2,28 +2,87 @@
 #include <stdio.h>
 #include "matrix.h"
 #include "math.h"
+#include <mpi.h>
 
-int main()
+void usage(const char *prog_name)
+{
+  fprintf(stderr,"usage: %s <N>\n",prog_name);
+  fprintf(stderr,"   N should be positive\n");
+  fprintf(stderr,"   N should be exactly divisible "
+                 "by the number of processors\n");
+  exit(1);
+}
+
+
+void get_input(int argc, char* argv[],
+               const int my_rank,
+               const int comm_sz,
+               int* N)
+{
+  void usage(const char *prog_name);
+  if (my_rank==0)
+    {
+      if (argc != 2) { usage(argv[0]); }
+
+      *N = strtol(argv[1], NULL, 10);
+      if (*N<=0) { usage(argv[0]); }
+      if (*N%comm_sz!=0) { usage(argv[0]); }
+
+      for (int i=1; i<comm_sz; i++)
+        {
+          MPI_Send(N,1,MPI_INT,   i,0,MPI_COMM_WORLD);
+        }
+    }
+  else
+    {
+      MPI_Recv(N,1,MPI_INT,0,0,MPI_COMM_WORLD,
+               MPI_STATUS_IGNORE);
+    }
+}
+
+int main(int argc, char* argv[])
 {
 
+  // Setup MPI code
+  int comm_sz, my_rank;
+  MPI_Init(NULL,NULL);
+  MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+/*
   int m=0;
   printf("    Input m: ");
   scanf("%i",&m);
+*/
 
-  matrix Coords = new_matrix(m*m, 2); // x,y
+  int m;
+  void get_input(int argc, char* argv[],
+                 const int my_rank,
+                 const int comm_sz,
+                 int* m);
+  get_input(argc,argv,my_rank,comm_sz,&m);
+
+  matrix Coords = new_matrix(m*m/comm_sz, 2); // x,y
   matrix NodesNum = new_matrix(2 * (m - 1) * (m - 1), 3);
 
   vector boundary = new_vector(4*m-4);
 
+  //printf("comm_sz=%d\n",comm_sz);
+  //printf("my_rank=%d\n",my_rank);
+
   /// Coords from 1 ~ m*m
-  int k=0;
-  for (int i=1;i<=m;i++){
-    for (int j=1;j<=m;j++){
-      k++;
+  int k,i,j;
+  for (int num=my_rank*m*m/comm_sz;num<(my_rank+1)*m*m/comm_sz;num++){
+      k=num-my_rank*m*m/comm_sz+1;
+      j = floor(num/m)+1;
+      i = num%m+1; 
       mget(Coords, k, 1) = (double)(j-1)/(m-1);
       mget(Coords, k, 2) = (double)(i-1)/(m-1);
-    }
   }
+
+  //print_matrix(&Coords);
+
+/*
 
   //print_matrix(&Coords);
 
@@ -42,7 +101,6 @@ int main()
     }
   }
 
-
   for (int i = 1; i <= m * m - (m + 2)+1; i++)
   {
     if (i % m != 0)
@@ -53,6 +111,7 @@ int main()
       mget(NodesNum, true_num, 3) = m + 1 + i - 1;
     }
   }
+
 
   //print_matrix(&NodesNum);
 
@@ -182,17 +241,7 @@ int main()
   //print_vector(&u);
 
   /// postprosessing
-/*
-  matrix u_OnGrid = new_matrix(m, m);
 
-  int k=0;
-  for (int i=1;i<=m;i++){
-    for (int j=1;j<=m;j++){
-      k++;
-      mget(u_OnGrid,i,j)=vget(u,k);
-    }
-  }
-*/
     /// Print solution to file
     char filename[] = "output.data";
 
@@ -232,6 +281,9 @@ int main()
         fprintf(outfiletec,"\n");
       }
     }
-
+*/
 
 }
+
+
+
