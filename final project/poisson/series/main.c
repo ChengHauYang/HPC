@@ -28,8 +28,8 @@ int main()
   //print_matrix(&Coords);
 
   /// Nodes number for every triangle
-  int true_num = 0;
 
+/*
   for (int i = 1; i <= m * m - (m + 2)+1; i++)
   {
     //printf("%d\n",i);
@@ -53,8 +53,27 @@ int main()
       mget(NodesNum, true_num, 3) = m + 1 + i - 1;
     }
   }
+*/
 
-  //print_matrix(&NodesNum);
+  // merge into one
+  int true_num = 1;
+  for (int i = 1; i <= m * m - (m + 2)+1; i=i+1)
+  {
+    //printf("%d\n",i);
+    if (i % m != 0)
+    {
+      mget(NodesNum, true_num, 1) = 1 + i - 1;
+      mget(NodesNum, true_num, 2) = 2 + i - 1;
+      mget(NodesNum, true_num, 3) = m + 2 + i - 1;
+      mget(NodesNum, true_num+1, 1) = 1 + i - 1;
+      mget(NodesNum, true_num+1, 2) = m + 2 + i - 1;
+      mget(NodesNum, true_num+1, 3) = m + 1 + i - 1;
+      true_num=true_num+2;
+    }
+  }
+
+
+  print_matrix(&NodesNum);
 
 
   /// Boundary
