@@ -1,5 +1,6 @@
 # $ISUHPC/lectures/lecture12/codes/matrix/Makefile
-CC = mpicc
+#CC = mpicxx
+CC = mpicxx
 FFLAGS = -O3 -Wall
 LFLAGS = -lm
 OBJECTS = main.o \

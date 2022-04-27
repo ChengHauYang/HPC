@@ -51,7 +51,7 @@ def phase_plot():
 
     import matplotlib.pyplot as plt
     import matplotlib as mpl
-    mpl.use('tkagg')
+    #mpl.use('tkagg')
     from matplotlib import rc
     import numpy as np
     from matplotlib import pyplot, cm
