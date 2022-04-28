@@ -72,6 +72,7 @@ void print_int_vector(std::vector<int> const &input)
     std::cout << input.at(i) << ' ';
   }
   std::cout << "\n";
+  std::cout << "==================================\n";
 }
 
 void print_double_vector(std::vector<double> const &input)
@@ -81,11 +82,24 @@ void print_double_vector(std::vector<double> const &input)
     std::cout << input.at(i) << ' ';
   }
   std::cout << "\n";
+  std::cout << "==================================\n";
 }
 
 int main(int argc, char *argv[])
 {
 
+/*
+  std::vector<int> vec1 = {10, 20, 30, 40};
+  std::vector<int> vec2{7, 9, 0};
+
+  // inserts at the beginning of vec2
+  vec2.insert(vec2.end(), vec1.begin(), vec1.end());
+
+  std::cout << "The vector2 elements are: ";
+  for (auto it = vec2.begin(); it != vec2.end(); ++it)
+    std::cout << *it << " ";
+  std::cout << "\n";
+*/
   // Setup MPI code
   int comm_sz, my_rank;
   MPI_Init(NULL, NULL);
@@ -385,21 +399,6 @@ int main(int argc, char *argv[])
   std::vector<std::vector<double>> Number_local_proc(comm_sz - 1);
   std::vector<std::vector<double>> F_local_proc(comm_sz - 1);
 
-  /*
-        std::vector<std::vector<double>> Be(2 * n_basis_functions);
-        for (int j = 0; j < n_basis_functions; j++)
-        {
-          Be[2 * j].resize(3);
-          Be[2 * j + 1].resize(3);
-
-          Be[2 * j][0] = fe.dN(j, 0);
-          Be[2 * j + 1][0] = 0;
-          Be[2 * j][1] = 0;
-          Be[2 * j + 1][1] = fe.dN(j, 1);
-          Be[2 * j][2] = fe.dN(j, 1);
-          Be[2 * j + 1][2] = fe.dN(j, 0);
-        }
-  */
   if (my_rank == 0)
   {
 
@@ -456,10 +455,12 @@ int main(int argc, char *argv[])
 
     Sum_DivideNodesNum_processor += DivideNodesNum_processor;
 
+    int Sum_DivideNodesNum_processor_before1=0;
     for (int i = 1; i < comm_sz; i++)
     {
-      int Sum_DivideNodesNum_processor_before1;
-      Sum_DivideNodesNum_processor_before1=Sum_DivideNodesNum_processor-DivideNodesNum_processor;
+      if (i>1){
+        Sum_DivideNodesNum_processor_before1 = Sum_DivideNodesNum_processor - DivideNodesNum_processor_proc[i - 2];
+      }
 
       // matrix K_local = new_matrix(Global_Nnodes,DivideNodesNum[i]);
       // vector F_local = new_vector(DivideNodesNum[i]);
@@ -480,7 +481,7 @@ int main(int argc, char *argv[])
 
           if (mget(K, a, Sum_DivideNodesNum_processor + b) != 0)
           {
-            Pos_local_x_proc[i - 1].push_back(a-Sum_DivideNodesNum_processor_before1);
+            Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor_before1);
             Pos_local_y_proc[i - 1].push_back(Sum_DivideNodesNum_processor + b);
             Number_local_proc[i - 1].push_back(mget(K, a, Sum_DivideNodesNum_processor + b));
           }
@@ -536,24 +537,57 @@ int main(int argc, char *argv[])
     MPI_Recv(&Number_local[0], sparse_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     std::cout << "receiving Number_local\n";
 
-    // print_int_vector(Pos_local_x);
-    // print_int_vector(Pos_local_y);
+    // print_double_vector(F_local);
+    //  print_int_vector(Pos_local_x);
+    //  print_int_vector(Pos_local_y);
     // print_double_vector(Number_local);
   }
   MPI_Barrier(MPI_COMM_WORLD);
 
   std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
-                  const std::vector<double> &F_local,
-                  const std::vector<int> &Pos_local_x,
-                  const std::vector<int> &Pos_local_y,
-                  const std::vector<double> &Number_local);
-  std::vector<double> u = solveCGMPI(my_rank, comm_sz,F_local,Pos_local_x,Pos_local_y,Number_local);
+                                 const std::vector<double> &F_local,
+                                 const std::vector<int> &Pos_local_x,
+                                 const std::vector<int> &Pos_local_y,
+                                 const std::vector<double> &Number_local);
+  std::vector<double> u = solveCGMPI(my_rank, comm_sz, F_local, Pos_local_x, Pos_local_y, Number_local);
+
+  void all_together(const int my_rank,
+                    const int comm_sz,
+                    const std::vector<double> &pts_position, std::vector<double> &pts_position_all);
+
+  std::vector<double> u_all;
+
+  print_double_vector(u);
+
+  all_together(my_rank, comm_sz, u, u_all);
+
+  if (my_rank == 0)
+  {
+    print_double_vector(u_all);
+    /// postprosessing
+
+    /// Print solution to file
+    char filename[] = "output.data";
+
+    // open file
+    FILE *outfile = fopen(filename, "w");
+
+    // output data
+    for (int i = 1; i <= m * m; i++)
+    {
+      fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 1));
+      fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 2));
+      fprintf(outfile, "%25.20e\n", u_all[i - 1]);
+    }
+
+    // close file
+    fclose(outfile);
+
+    // Call python script to plot
+    system("python3.8 phase_plot.py");
+  }
 
   /*
-    // TO DO: try to save stiffness matrix as sparse matrix!!!!!!!!!!!!!!!
-    vector solveCG(const matrix *A, const vector *b);
-    vector u = solveCG(&K, &F);
-    // print_vector(&u);
 
     /// postprosessing
 

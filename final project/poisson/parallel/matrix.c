@@ -499,6 +499,124 @@ void MatMult(const int my_rank, const int comm_sz,
   vgetp(U, N) = -vgetp(Uold, N - 1) + 2.0 * vgetp(Uold, N) - URIGHT;
 }
 
+double dot_prod(const vector *vec1, const vector *vec2)
+{
+  const int N = vec1->size;
+
+  double dot = 0.0;
+  for (int i = 1; i <= N; i++)
+  {
+    dot += vgetp(vec1, i) * vgetp(vec2, i);
+  }
+
+  return dot;
+}
+
+int ConjugateGradient(const int my_rank,
+                      const int comm_sz,
+                      const int MaxIters,
+                      const double TOL,
+                      const vector *rhs,
+                      vector *U)
+{
+  void MatMult(const int my_rank,
+               const int comm_sz,
+               const vector *Uin,
+               vector *Uout);
+  double GlobalSum(const int my_rank,
+                   const int comm_sz,
+                   const double local_in);
+  const int N = U->size;
+  int NumIters = 0;
+  int mflag = 0;
+  FILE *file;
+
+  vector r = new_vector(N);
+  vector d = new_vector(N);
+  vector Ad = new_vector(N);
+
+  MatMult(my_rank, comm_sz, U, &r);
+  double delta = 0.0;
+  for (int i = 1; i <= N; i++)
+  {
+    vget(r, i) = vgetp(rhs, i) - vget(r, i);
+    vget(d, i) = vget(r, i);
+    delta += pow(vget(r, i), 2);
+  }
+
+  delta = GlobalSum(my_rank, comm_sz, delta);
+  if (sqrt(delta) < TOL)
+  {
+    mflag = 1;
+  }
+
+  if (my_rank == 0)
+  {
+    file = fopen("residual.data", "w");
+    fprintf(file, "%24.15e\n", sqrt(delta));
+  }
+
+  while (mflag == 0)
+  {
+    NumIters++;
+    MatMult(my_rank, comm_sz, &d, &Ad);
+    double local_dot_prod = dot_prod(&d, &Ad);
+    double global_dot_prod = GlobalSum(my_rank, comm_sz,
+                                       local_dot_prod);
+    double alpha = delta / global_dot_prod;
+
+    double delta_old = delta;
+    delta = 0.0;
+    for (int i = 1; i <= N; i++)
+    {
+      vgetp(U, i) += alpha * vget(d, i);
+      vget(r, i) -= alpha * vget(Ad, i);
+      delta += pow(vget(r, i), 2);
+    }
+    delta = GlobalSum(my_rank, comm_sz, delta);
+
+    if (my_rank == 0)
+    {
+      fprintf(file, "%24.15e\n", sqrt(delta));
+    }
+
+    if (sqrt(delta) < TOL || NumIters == MaxIters)
+    {
+      mflag = 1;
+    }
+    else
+    {
+      double beta = delta / delta_old;
+      for (int i = 1; i <= N; i++)
+      {
+        vget(d, i) = vget(r, i) + beta * vget(d, i);
+      }
+    }
+  }
+
+  if (my_rank == 0)
+  {
+    printf("\n");
+    printf("  |----------------------------\n");
+    printf("  | Conjugate Gradient Results:\n");
+    printf("  |----------------------------\n");
+    printf("  |  MaxIters = %i\n", MaxIters);
+    printf("  |       TOL = %e\n", TOL);
+    printf("  |  NumIters = %i\n", NumIters);
+    printf("  |  residual = %e\n", sqrt(delta));
+    printf("  |----------------------------\n");
+    printf("\n");
+
+    fclose(file);
+  }
+
+  delete_vector(&r);
+  delete_vector(&d);
+  delete_vector(&Ad);
+
+  return NumIters;
+}
+
 void send_boundary_data(const int my_rank, const int comm_sz,
                         const double U1, const double UN)
 {
@@ -567,7 +685,7 @@ double stdvector_dot_mult(const std::vector<double> &x, const std::vector<double
   return z;
 }
 
-double stdGetNormal(const std::vector<double> &v)
+double stdGetPower(const std::vector<double> &v)
 {
   const int size = v.size();
   double normsquare = 0;
@@ -576,7 +694,7 @@ double stdGetNormal(const std::vector<double> &v)
     normsquare += pow(v[i], 2);
   }
   // printf("normalsquare:%10.3e\n", normsquare);
-  return sqrt(normsquare);
+  return (normsquare);
 }
 
 std::vector<double> scale_stdvector(const std::vector<double> &x, double scaling)
@@ -607,7 +725,7 @@ std::vector<double> stdvector_add(const std::vector<double> &x, const std::vecto
 }
 
 void send_boundary_data2D(const int my_rank, const int comm_sz,
-                        const std::vector<double> &Uold)
+                          const std::vector<double> &Uold)
 {
   const int last_rank = comm_sz - 1;
   if (last_rank == 0)
@@ -615,7 +733,7 @@ void send_boundary_data2D(const int my_rank, const int comm_sz,
     return;
   }
 
-  int old_size=Uold.size();
+  int old_size = Uold.size();
 
   if (my_rank == 0)
   {
@@ -641,12 +759,12 @@ void send_boundary_data2D(const int my_rank, const int comm_sz,
 }
 
 void receive_boundary_data2D(const int my_rank,
-                           const int comm_sz,
-                           std::vector<double> &Ubot,
-                           std::vector<double> &Utop)
+                             const int comm_sz,
+                             std::vector<double> &Ubot,
+                             std::vector<double> &Utop)
 {
   const int last_rank = comm_sz - 1;
-  //std::cout<<"last_rank:"<<last_rank<<"\n";
+  // std::cout<<"last_rank:"<<last_rank<<"\n";
   Utop = {};
   Ubot = {};
 
@@ -678,7 +796,7 @@ void receive_boundary_data2D(const int my_rank,
              MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(&top_size, 1, MPI_INT, my_rank + 1, 999,
              MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    
+
     Utop.resize(top_size);
     Ubot.resize(bot_size);
 
@@ -689,8 +807,7 @@ void receive_boundary_data2D(const int my_rank,
   }
 }
 
-
-//MatMult2D(my_rank, comm_sz, &Pos_local_x, &Pos_local_y, &Number_local, &p, &q);
+// MatMult2D(my_rank, comm_sz, &Pos_local_x, &Pos_local_y, &Number_local, &p, &q);
 void MatMult2D(const int my_rank, const int comm_sz,
                const std::vector<int> &Pos_local_x,
                const std::vector<int> &Pos_local_y,
@@ -703,18 +820,17 @@ void MatMult2D(const int my_rank, const int comm_sz,
   std::vector<double> Utop;
   std::vector<double> Ubot;
 
-//  std::vector<double> Umerge;
+  //  std::vector<double> Umerge;
 
   send_boundary_data2D(my_rank, comm_sz, Uold);
   receive_boundary_data2D(my_rank, comm_sz, Ubot, Utop);
 
   // only for c++ 17
-  //std::merge(Ubot.begin(), Ubot.end(), Uold.begin(), Uold.end(), std::back_inserter(Umerge));
-  //std::merge(Umerge.begin(), Umerge.end(), Utop.begin(), Utop.end(), std::back_inserter(Umerge));
+  // std::merge(Ubot.begin(), Ubot.end(), Uold.begin(), Uold.end(), std::back_inserter(Umerge));
+  // std::merge(Umerge.begin(), Umerge.end(), Utop.begin(), Utop.end(), std::back_inserter(Umerge));
 
-  Ubot.insert( Ubot.end(), Uold.begin(), Uold.end() );
-  Ubot.insert( Ubot.end(), Utop.begin(), Utop.end() );
-
+  Ubot.insert(Ubot.end(), Uold.begin(), Uold.end());
+  Ubot.insert(Ubot.end(), Utop.begin(), Utop.end());
 
   for (int i = 0; i < N; i++)
   {
@@ -728,25 +844,25 @@ void MatMult2D(const int my_rank, const int comm_sz,
   }
 }
 
-
-
 std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
-                  const std::vector<double> &F_local,
-                  const std::vector<int> &Pos_local_x,
-                  const std::vector<int> &Pos_local_y,
-                  const std::vector<double> &Number_local)
+                               const std::vector<double> &F_local,
+                               const std::vector<int> &Pos_local_x,
+                               const std::vector<int> &Pos_local_y,
+                               const std::vector<double> &Number_local)
 {
 
   double GlobalSum(const int my_rank,
                    const int comm_sz,
                    const double local_in);
 
-  void MatMult(const int my_rank,
-               const int comm_sz,
-               const vector *Uin,
-               vector *Uout);
+  void MatMult2D(const int my_rank, const int comm_sz,
+                 const std::vector<int> &Pos_local_x,
+                 const std::vector<int> &Pos_local_y,
+                 const std::vector<double> &Number_local,
+                 const std::vector<double> &Uold,
+                 std::vector<double> &U);
 
-  int size=F_local.size();
+  int size = F_local.size();
   std::vector<double> x(size);
 
   std::vector<double> r = F_local;
@@ -754,10 +870,20 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
   double rho = stdvector_dot_mult(r, r); // inner product of two vectors  -> across all processors
   rho = GlobalSum(my_rank, comm_sz, rho);
 
+  if (my_rank == 0)
+  {
+    std::cout << "rho=" << rho << "\n";
+  }
+
   std::vector<double> p = r;
 
-  double residual = stdGetNormal(r); // norm of residual -> across all processors
-  residual = GlobalSum(my_rank, comm_sz, residual);
+  double residual = stdGetPower(r); // norm of residual -> across all processors
+  residual = sqrt(GlobalSum(my_rank, comm_sz, residual));
+  
+  if (my_rank == 0)
+  {
+    std::cout << "residual=" << residual << "\n";
+  }
 
   std::vector<double> q(size);
   std::vector<double> temp(size);
@@ -765,17 +891,20 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
   double alpha, rho_old, beta, residual_old, residual_ori, local_dot_prod, global_dot_prod;
 
   residual_ori = residual;
-  for (int iter = 1; iter <= 5000; iter++)
+  for (int iter = 1; iter <= 2; iter++)
   {
-    // q = matrix_vector_mult(A,&p);
-    // MatMult(my_rank,comm_sz,&p,&q);
+    // q = A*p
     MatMult2D(my_rank, comm_sz, Pos_local_x, Pos_local_y, Number_local, p, q); // matrix-vector product -> across all processors
 
     local_dot_prod = stdvector_dot_mult(p, q); // inner product of two vectors  -> across all processors
     global_dot_prod = GlobalSum(my_rank, comm_sz,
                                 local_dot_prod);
     alpha = rho / global_dot_prod;
+    if (my_rank == 0)
+    {
 
+      std::cout << "alpha=" << alpha << "\n";
+    }
     temp = scale_stdvector(p, alpha);
     x = stdvector_add(x, temp);
     temp = scale_stdvector(q, -alpha);
@@ -786,12 +915,18 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
     rho = GlobalSum(my_rank, comm_sz, rho);
 
     beta = rho / rho_old;
+    if (my_rank == 0)
+    {
+
+      std::cout << "beta=" << beta << "\n";
+    }
+
     temp = scale_stdvector(p, beta);
     p = stdvector_add(r, temp);
 
     residual_old = residual;
-    residual = stdGetNormal(r); // norm of residual -> across all processors
-    residual = GlobalSum(my_rank, comm_sz, residual);
+    residual = stdGetPower(r); // norm of residual -> across all processors
+    residual = sqrt(GlobalSum(my_rank, comm_sz, residual));
 
     if (residual / residual_ori < 1e-13)
     {
@@ -800,6 +935,35 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
   }
 
   return x;
+}
+
+void all_together(const int my_rank,
+                  const int comm_sz,
+                  const std::vector<double> &pts_position, std::vector<double> &pts_position_all)
+{
+  int nProc = comm_sz; // be careful
+  int numNodes = pts_position.size();
+  std::vector<int> eachProcData(nProc);
+  MPI_Allgather(&numNodes, 1, MPI_INT, eachProcData.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+  std::vector<int> disp(nProc, 0);
+  for (int i = 1; i < disp.size(); i++)
+  {
+    disp[i] = disp[i - 1] + eachProcData[i - 1];
+  }
+
+  int totalProcData = 0;
+  for (int i = 0; i < nProc; i++)
+  {
+    totalProcData += eachProcData[i];
+  }
+
+  if (my_rank == 0)
+  {
+    pts_position_all.resize(totalProcData);
+  }
+
+  MPI_Gatherv(pts_position.data(), pts_position.size(), MPI_DOUBLE, pts_position_all.data(), eachProcData.data(), disp.data(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 }
 
 /*

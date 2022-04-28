@@ -73,7 +73,7 @@ int main()
   }
 
 
-  print_matrix(&NodesNum);
+  //print_matrix(&NodesNum);
 
 
   /// Boundary
