@@ -815,7 +815,23 @@ void MatMult2D(const int my_rank, const int comm_sz,
                const std::vector<double> &Uold,
                std::vector<double> &U)
 {
+
+  void print_double_vector_seq(const int comm_sz,const int my_rank, std::vector<double> const &input);
+  
+  void send_boundary_data2D(const int my_rank, const int comm_sz,
+                          const std::vector<double> &Uold);
+
+  void receive_boundary_data2D(const int my_rank,
+                             const int comm_sz,
+                             std::vector<double> &Ubot,
+                             std::vector<double> &Utop);
+
   const int N = Uold.size();
+
+  printf("Uold:");
+  print_double_vector_seq(comm_sz,my_rank,Uold);
+
+  U.resize(N);
 
   std::vector<double> Utop;
   std::vector<double> Ubot;
@@ -832,16 +848,28 @@ void MatMult2D(const int my_rank, const int comm_sz,
   Ubot.insert(Ubot.end(), Uold.begin(), Uold.end());
   Ubot.insert(Ubot.end(), Utop.begin(), Utop.end());
 
+  printf("Ubot:");
+  print_double_vector_seq(comm_sz,my_rank,Ubot);
+  MPI_Barrier(MPI_COMM_WORLD);
+
+
   for (int i = 0; i < N; i++)
   {
+    // initalization
+    U[i] = 0;
     for (int a = 0; a < Pos_local_x.size(); a++)
     {
-      if (Pos_local_y[a] == i + 1)
+      if (Pos_local_y[a] == i + 1)  // Pos_local_y starts from 1 !!!!!!!!!!!!!!!
       {
-        U[i] += Number_local[a] * Ubot[Pos_local_x[a]];
+        // NOTE: be careful here
+        U[i] += Number_local[a] * Ubot[Pos_local_x[a]-1];  // Pos_local_x starts from 1 !!!!!!!!!!!!!!!
       }
     }
   }
+
+  printf("U:");
+  print_double_vector_seq(comm_sz,my_rank,U);
+  MPI_Barrier(MPI_COMM_WORLD);  
 }
 
 std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,

@@ -75,14 +75,34 @@ void print_int_vector(std::vector<int> const &input)
   std::cout << "==================================\n";
 }
 
-void print_double_vector(std::vector<double> const &input)
+void print_double_vector(const int my_rank, std::vector<double> const &input)
 {
+  //std::cout<<"my_rank="<<my_rank<<"\n";
   for (int i = 0; i < input.size(); i++)
   {
     std::cout << input.at(i) << ' ';
   }
   std::cout << "\n";
   std::cout << "==================================\n";
+}
+
+
+
+void print_double_vector_seq(const int comm_sz,const int my_rank, std::vector<double> const &input)
+{
+  for (int i=0;i<comm_sz;i++){
+    if (my_rank==i){
+    std::cout<<"my_rank="<<i<<"\n";
+    for (int i = 0; i < input.size(); i++)
+    {
+      std::cout << input.at(i) << ' ';
+    }
+    std::cout << "\n";
+    std::cout << "==================================\n";    
+    }
+  }
+    MPI_Barrier(MPI_COMM_WORLD);
+
 }
 
 int main(int argc, char *argv[])
@@ -435,11 +455,12 @@ int main(int argc, char *argv[])
     {
       for (int a = 1; a <= Global_Nnodes; a++)
       {
-        if (mget(K, a, Sum_DivideNodesNum_processor + b) != 0)
+        if (mget(K, Sum_DivideNodesNum_processor + b, a) != 0)  // meg(K,i,j)*veg(b,j)
         {
           Pos_local_x.push_back(a);
-          Pos_local_y.push_back(Sum_DivideNodesNum_processor + b);
-          Number_local.push_back(mget(K, a, Sum_DivideNodesNum_processor + b));
+//          Pos_local_y.push_back(Sum_DivideNodesNum_processor + b);
+          Pos_local_y.push_back(b);
+          Number_local.push_back(mget(K, Sum_DivideNodesNum_processor + b, a));
         }
         // K_local[count_num] = mget(K, a, Sum_DivideNodesNum_processor + b);
       }
@@ -479,11 +500,12 @@ int main(int argc, char *argv[])
         for (int a = 1; a <= Global_Nnodes; a++)
         {
 
-          if (mget(K, a, Sum_DivideNodesNum_processor + b) != 0)
+          if (mget(K, Sum_DivideNodesNum_processor + b, a) != 0)
           {
             Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor_before1);
-            Pos_local_y_proc[i - 1].push_back(Sum_DivideNodesNum_processor + b);
-            Number_local_proc[i - 1].push_back(mget(K, a, Sum_DivideNodesNum_processor + b));
+//            Pos_local_y_proc[i - 1].push_back(Sum_DivideNodesNum_processor + b);
+            Pos_local_y_proc[i - 1].push_back(b);
+            Number_local_proc[i - 1].push_back(mget(K, Sum_DivideNodesNum_processor + b, a));
           }
           // K_local[count_num] = mget(K, a, Sum_DivideNodesNum_processor + b);
         }
@@ -536,11 +558,6 @@ int main(int argc, char *argv[])
 
     MPI_Recv(&Number_local[0], sparse_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     std::cout << "receiving Number_local\n";
-
-    // print_double_vector(F_local);
-    //  print_int_vector(Pos_local_x);
-    //  print_int_vector(Pos_local_y);
-    // print_double_vector(Number_local);
   }
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -557,13 +574,13 @@ int main(int argc, char *argv[])
 
   std::vector<double> u_all;
 
-  print_double_vector(u);
+  print_double_vector(my_rank,u);
 
   all_together(my_rank, comm_sz, u, u_all);
 
   if (my_rank == 0)
   {
-    print_double_vector(u_all);
+    print_double_vector(my_rank,u_all);
     /// postprosessing
 
     /// Print solution to file
