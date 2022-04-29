@@ -828,8 +828,8 @@ void MatMult2D(const int my_rank, const int comm_sz,
 
   const int N = Uold.size();
 
-  printf("Uold:");
-  print_double_vector_seq(comm_sz,my_rank,Uold);
+  //printf("Uold:");
+  //print_double_vector_seq(comm_sz,my_rank,Uold);
 
   U.resize(N);
 
@@ -848,10 +848,8 @@ void MatMult2D(const int my_rank, const int comm_sz,
   Ubot.insert(Ubot.end(), Uold.begin(), Uold.end());
   Ubot.insert(Ubot.end(), Utop.begin(), Utop.end());
 
-  printf("Ubot:");
-  print_double_vector_seq(comm_sz,my_rank,Ubot);
-  MPI_Barrier(MPI_COMM_WORLD);
-
+  //printf("Ubot:");
+  //print_double_vector_seq(comm_sz,my_rank,Ubot);
 
   for (int i = 0; i < N; i++)
   {
@@ -867,9 +865,8 @@ void MatMult2D(const int my_rank, const int comm_sz,
     }
   }
 
-  printf("U:");
-  print_double_vector_seq(comm_sz,my_rank,U);
-  MPI_Barrier(MPI_COMM_WORLD);  
+  //printf("U:");
+  //print_double_vector_seq(comm_sz,my_rank,U);
 }
 
 std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
@@ -898,20 +895,20 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
   double rho = stdvector_dot_mult(r, r); // inner product of two vectors  -> across all processors
   rho = GlobalSum(my_rank, comm_sz, rho);
 
-  if (my_rank == 0)
-  {
-    std::cout << "rho=" << rho << "\n";
-  }
+  //if (my_rank == 0)
+  //{
+  //  std::cout << "rho=" << rho << "\n";
+  //}
 
   std::vector<double> p = r;
 
   double residual = stdGetPower(r); // norm of residual -> across all processors
   residual = sqrt(GlobalSum(my_rank, comm_sz, residual));
   
-  if (my_rank == 0)
-  {
-    std::cout << "residual=" << residual << "\n";
-  }
+  //if (my_rank == 0)
+  //{
+  //  std::cout << "residual=" << residual << "\n";
+  //}
 
   std::vector<double> q(size);
   std::vector<double> temp(size);
@@ -928,11 +925,10 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
     global_dot_prod = GlobalSum(my_rank, comm_sz,
                                 local_dot_prod);
     alpha = rho / global_dot_prod;
-    if (my_rank == 0)
-    {
-
-      std::cout << "alpha=" << alpha << "\n";
-    }
+    //if (my_rank == 0)
+    //{
+    //  std::cout << "alpha=" << alpha << "\n";
+    //}
     temp = scale_stdvector(p, alpha);
     x = stdvector_add(x, temp);
     temp = scale_stdvector(q, -alpha);
@@ -943,11 +939,10 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
     rho = GlobalSum(my_rank, comm_sz, rho);
 
     beta = rho / rho_old;
-    if (my_rank == 0)
-    {
-
-      std::cout << "beta=" << beta << "\n";
-    }
+    //if (my_rank == 0)
+    //{
+    //  std::cout << "beta=" << beta << "\n";
+    //}
 
     temp = scale_stdvector(p, beta);
     p = stdvector_add(r, temp);

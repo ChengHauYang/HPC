@@ -108,29 +108,11 @@ void print_double_vector_seq(const int comm_sz,const int my_rank, std::vector<do
 int main(int argc, char *argv[])
 {
 
-/*
-  std::vector<int> vec1 = {10, 20, 30, 40};
-  std::vector<int> vec2{7, 9, 0};
-
-  // inserts at the beginning of vec2
-  vec2.insert(vec2.end(), vec1.begin(), vec1.end());
-
-  std::cout << "The vector2 elements are: ";
-  for (auto it = vec2.begin(); it != vec2.end(); ++it)
-    std::cout << *it << " ";
-  std::cout << "\n";
-*/
   // Setup MPI code
   int comm_sz, my_rank;
   MPI_Init(NULL, NULL);
   MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-
-  /*
-    int m=0;
-    printf("    Input m: ");
-    scanf("%i",&m);
-  */
 
   // pick m as 17 is better !
   // m-1 should be exactly divisible by the number of processors
@@ -142,9 +124,6 @@ int main(int argc, char *argv[])
                  int *m);
   get_input(argc, argv, my_rank, comm_sz, &m);
 
-  // print_master(my_rank);
-  // print_myrank(my_rank);
-
   matrix Global_Coords = new_matrix(m * m, 2); // x,y
   matrix Global_NodesNum = new_matrix(2 * (m - 1) * (m - 1), 3);
 
@@ -154,21 +133,6 @@ int main(int argc, char *argv[])
 
   matrix Local_NodesNum = new_matrix(2 * (m - 1) * (m - 1) / comm_sz, 3);
   vector boundary = new_vector(4 * m - 4);
-
-  // printf("comm_sz=%d\n",comm_sz);
-  // printf("my_rank=%d\n",my_rank);
-
-  /// Coords from 1 ~ m*m
-  /*
-  int k,i,j;
-  for (int num=my_rank*m*m/comm_sz;num<(my_rank+1)*m*m/comm_sz;num++){
-      k=num-my_rank*m*m/comm_sz+1;
-      j = floor(num/m)+1;
-      i = num%m+1;
-      mget(Coords, k, 1) = (double)(j-1)/(m-1);
-      mget(Coords, k, 2) = (double)(i-1)/(m-1);
-  }
-  */
 
   int k = 0;
   for (int i = 1; i <= m; i++)
@@ -212,11 +176,8 @@ int main(int argc, char *argv[])
   //   print_matrix(&Local_NodesNum);
   // }
 
-  // printf("my rank=%d", my_rank);
-  // print_matrix(&Local_NodesNum);
 
   /// Boundary
-
   if (my_rank == 0)
   {
     k = 0;
@@ -422,9 +383,6 @@ int main(int argc, char *argv[])
   if (my_rank == 0)
   {
 
-    // print_matrix(&K);
-    // print_vector(&F);
-
     // strong enforce BC => set LHS = 1 and set RHS = 0
     for (int i = 1; i <= 4 * m - 4; i++)
     {
@@ -448,9 +406,7 @@ int main(int argc, char *argv[])
     DivideNodesNum[comm_sz - 1] = m - commun_num * (comm_sz - 1);
 
     DivideNodesNum_processor = DivideNodesNum[0] * m;
-    printf("DivideNodesNum_processor=%d \n", DivideNodesNum_processor);
-
-    // double K_local[Global_Nnodes * DivideNodesNum_processor];
+    //printf("DivideNodesNum_processor=%d \n", DivideNodesNum_processor);
     for (int b = 1; b <= DivideNodesNum_processor; b++)
     {
       for (int a = 1; a <= Global_Nnodes; a++)
@@ -462,17 +418,16 @@ int main(int argc, char *argv[])
           Pos_local_y.push_back(b);
           Number_local.push_back(mget(K, Sum_DivideNodesNum_processor + b, a));
         }
-        // K_local[count_num] = mget(K, a, Sum_DivideNodesNum_processor + b);
       }
     }
-    printf("finish K_local\n");
+    //printf("finish K_local\n");
 
     F_local.resize(DivideNodesNum_processor);
     for (int j = 1; j <= DivideNodesNum_processor; j++)
     {
       F_local[j - 1] = vget(F, Sum_DivideNodesNum_processor + j);
     }
-    printf("finish F_local\n");
+    //printf("finish F_local\n");
 
     Sum_DivideNodesNum_processor += DivideNodesNum_processor;
 
@@ -483,10 +438,8 @@ int main(int argc, char *argv[])
         Sum_DivideNodesNum_processor_before1 = Sum_DivideNodesNum_processor - DivideNodesNum_processor_proc[i - 2];
       }
 
-      // matrix K_local = new_matrix(Global_Nnodes,DivideNodesNum[i]);
-      // vector F_local = new_vector(DivideNodesNum[i]);
       DivideNodesNum_processor_proc[i - 1] = DivideNodesNum[i] * m;
-      printf("DivideNodesNum_processor=%d \n", DivideNodesNum_processor_proc[i - 1]);
+      //printf("DivideNodesNum_processor=%d \n", DivideNodesNum_processor_proc[i - 1]);
 
       Pos_local_x_proc[i - 1] = {};
       Pos_local_y_proc[i - 1] = {};
@@ -510,8 +463,8 @@ int main(int argc, char *argv[])
           // K_local[count_num] = mget(K, a, Sum_DivideNodesNum_processor + b);
         }
       }
-      std::cout << "0. size: " << Number_local_proc[i - 1].size() << '\n';
-      printf("finish K_local\n");
+      //std::cout << "0. size: " << Number_local_proc[i - 1].size() << '\n';
+      //printf("finish K_local\n");
 
       sparse_size_proc[i - 1] = Number_local_proc[i - 1].size();
 
@@ -519,7 +472,7 @@ int main(int argc, char *argv[])
       {
         F_local_proc[i - 1][b - 1] = vget(F, Sum_DivideNodesNum_processor + b);
       }
-      printf("finish F_local\n");
+      //printf("finish F_local\n");
 
       Sum_DivideNodesNum_processor += DivideNodesNum_processor_proc[i - 1];
 
@@ -527,12 +480,12 @@ int main(int argc, char *argv[])
       MPI_Send(&sparse_size_proc[i - 1], 1, MPI_INT, i, 0, MPI_COMM_WORLD);
 
       MPI_Send(&F_local_proc[i - 1][0], DivideNodesNum_processor_proc[i - 1], MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
-      printf("sending vector\n");
+      //printf("sending vector\n");
       MPI_Send(&Pos_local_x_proc[i - 1][0], sparse_size_proc[i - 1], MPI_INT, i, 0, MPI_COMM_WORLD);
       MPI_Send(&Pos_local_y_proc[i - 1][0], sparse_size_proc[i - 1], MPI_INT, i, 0, MPI_COMM_WORLD);
       MPI_Send(&Number_local_proc[i - 1][0], sparse_size_proc[i - 1], MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 
-      printf("sending matrix\n");
+      //printf("sending matrix\n");
     }
   }
   else
@@ -541,23 +494,23 @@ int main(int argc, char *argv[])
     MPI_Recv(&DivideNodesNum_processor, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(&sparse_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    std::cout << "receiving number\n";
+    //std::cout << "receiving number\n";
     F_local.resize(DivideNodesNum_processor);
     Pos_local_x.resize(sparse_size);
     Pos_local_y.resize(sparse_size);
     Number_local.resize(sparse_size);
 
     MPI_Recv(&F_local[0], DivideNodesNum_processor, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    std::cout << "receiving F\n";
+    //std::cout << "receiving F\n";
 
     MPI_Recv(&Pos_local_x[0], sparse_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    std::cout << "receiving pos_x\n";
+    //std::cout << "receiving pos_x\n";
 
     MPI_Recv(&Pos_local_y[0], sparse_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    std::cout << "receiving pos_y\n";
+    //std::cout << "receiving pos_y\n";
 
     MPI_Recv(&Number_local[0], sparse_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    std::cout << "receiving Number_local\n";
+    //std::cout << "receiving Number_local\n";
   }
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -574,13 +527,13 @@ int main(int argc, char *argv[])
 
   std::vector<double> u_all;
 
-  print_double_vector(my_rank,u);
+  //print_double_vector(my_rank,u);
 
   all_together(my_rank, comm_sz, u, u_all);
 
   if (my_rank == 0)
   {
-    print_double_vector(my_rank,u_all);
+    //print_double_vector(my_rank,u_all);
     /// postprosessing
 
     /// Print solution to file
