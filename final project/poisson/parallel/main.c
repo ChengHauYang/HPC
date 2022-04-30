@@ -6,6 +6,14 @@
 #include <vector>
 #include <iostream>
 
+
+  std::string num2str(int i)
+  {
+    char tmp[100];
+    sprintf(tmp, "%d", i);
+    return std::string(tmp);
+  }
+
 void usage(const char *prog_name)
 {
   fprintf(stderr, "usage: %s <N>\n", prog_name);
@@ -131,7 +139,7 @@ int main(int argc, char *argv[])
   int Global_Nele = 2 * (m - 1) * (m - 1);
   int Local_Nele = 2 * (m - 1) * (m - 1) / comm_sz;
 
-  matrix Local_NodesNum = new_matrix(2 * (m - 1) * (m - 1) / comm_sz, 3);
+  matrix Local_NodesNum = new_matrix(Local_Nele, 3);
   vector boundary = new_vector(4 * m - 4);
 
   int k = 0;
@@ -526,14 +534,15 @@ int main(int argc, char *argv[])
                     const std::vector<double> &pts_position, std::vector<double> &pts_position_all);
 
   std::vector<double> u_all;
-
+  int u_all_size;
   //print_double_vector(my_rank,u);
 
   all_together(my_rank, comm_sz, u, u_all);
 
+
+
   if (my_rank == 0)
   {
-    //print_double_vector(my_rank,u_all);
     /// postprosessing
 
     /// Print solution to file
@@ -555,55 +564,63 @@ int main(int argc, char *argv[])
 
     // Call python script to plot
     system("python3.8 phase_plot.py");
+
+  } 
+
+  u_all_size = u_all.size();
+
+
+  MPI_Bcast(&u_all_size,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (my_rank != 0){
+    u_all.resize(u_all_size);
   }
+  
+  MPI_Bcast(u_all.data(),u_all_size,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-  /*
 
-    /// postprosessing
 
-    /// Print solution to file
-    char filename[] = "output.data";
+    //print_double_vector(my_rank,u_all);
 
-    // open file
-    FILE *outfile = fopen(filename, "w");
-
-    // output data
-    for (int i = 1; i <= m * m; i++)
-    {
-      fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 1));
-      fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 2));
-      fprintf(outfile, "%25.20e\n", vget(u, i));
-    }
-
-    // close file
-    fclose(outfile);
-
-    // Call python script to plot
-    system("python3.8 phase_plot.py");
+    int NodesAddPerProc = m*((m-1)/comm_sz);
+    int NodesPerProc = NodesAddPerProc+m;
+    std::cout<<"NodesAddPerProc:"<<NodesAddPerProc<<"\n";
+    std::cout<<"NodesPerProc:"<<NodesPerProc<<"\n";
 
     /// Output Tecplot
-    char filenametec[] = "output.tec";
-    FILE *outfiletec = fopen(filenametec, "w");
+    FILE *outfiletec = NULL;
+    char filenametec[256];
+    sprintf(filenametec, "%s_%d_%d.tec", "output", my_rank, comm_sz);
+    outfiletec = fopen(filenametec, "w");
     fprintf(outfiletec, "%s \n", "Titile = 'Poisson' ");
     fprintf(outfiletec, "%s \n", "VARIABLES = X, Y, U, Error");
-    fprintf(outfiletec, "zone N= %d, E = %d", Global_Nnodes, Global_Nele);
+    fprintf(outfiletec, "zone N= %d, E = %d", NodesPerProc, Local_Nele);
     fprintf(outfiletec, "\n");
     fprintf(outfiletec, "DATAPACKING=POINT, ZONETYPE=FETRIANGLE");
     fprintf(outfiletec, "\n");
-    for (int i = 1; i <= Global_Nnodes; i++)
+
+
+    for (int i = 1+NodesAddPerProc*my_rank; i <= NodesAddPerProc*my_rank+NodesPerProc; i++)
     {
+      //std::cout<<"i="<<i<<"\n";
       double Exact = sin(M_PI * mget(Global_Coords, i, 1)) * sin(M_PI * mget(Global_Coords, i, 2));
-      fprintf(outfiletec, "%25.20e  %25.20e  %25.20e  %25.20e\n", mget(Global_Coords, i, 1), mget(Global_Coords, i, 2), vget(u, i), fabs(Exact - vget(u, i)));
+      fprintf(outfiletec, "%25.20e  %25.20e  %25.20e  %25.20e\n", mget(Global_Coords, i, 1), mget(Global_Coords, i, 2), u_all[i-1]
+      , fabs(Exact - u_all[i-1]));
     }
-    for (int i = 1; i <= Global_Nele; i++)
+
+    int find_min_matrix(const matrix *A);
+
+    for (int i = 1; i <= Local_Nele; i++)
     {
-      fprintf(outfiletec, "%d  %d  %d", (int)mget(Global_NodesNum, i, 1), (int)mget(Global_NodesNum, i, 2), (int)mget(Global_NodesNum, i, 3));
-      if (i != Global_Nele)
+      fprintf(outfiletec, "%d  %d  %d", (int)mget(Local_NodesNum, i, 1)-find_min_matrix(&Local_NodesNum)+1, 
+      (int)mget(Local_NodesNum, i, 2)-find_min_matrix(&Local_NodesNum)+1, (int)mget(Local_NodesNum, i, 3)-find_min_matrix(&Local_NodesNum)+1);
+      if (i != Local_Nele)
       {
         fprintf(outfiletec, "\n");
       }
     }
 
+    fclose(outfiletec);
+
     MPI_Barrier(MPI_COMM_WORLD);
-    */
+    
 }

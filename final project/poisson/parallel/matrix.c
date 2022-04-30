@@ -7,19 +7,6 @@
 #include <vector>
 #include <iostream>
 
-double GetNormal(const vector *v)
-{
-  const int size = v->size;
-  double normsquare = 0;
-  for (int i = 1; i <= size; i++)
-  {
-    // printf("vgetp:%10.3e\n", vgetp(v,i));
-    normsquare += pow(vgetp(v, i), 2);
-  }
-  // printf("normalsquare:%10.3e\n", normsquare);
-  return sqrt(normsquare);
-}
-
 matrix new_matrix(const int rows, const int cols)
 {
   matrix mat;
@@ -109,6 +96,25 @@ matrix scale_matrix(const matrix *A, double scaling)
     }
 
   return C;
+}
+
+
+int find_min_matrix(const matrix *A)
+{
+  const int rowsA = A->rows;
+  const int colsA = A->cols;
+  matrix C = new_matrix(rowsA, colsA);
+
+  int min = mgetp(A, 1, 1);
+  for (int i = 1; i <= colsA; i++)
+    for (int k = 1; k <= rowsA; k++)
+    {
+      if (mgetp(A,i,k)<min){
+        min =mgetp(A,i,k);
+      }
+    }
+
+  return min;
 }
 
 matrix matrix_mult_transpose(const matrix *A, const matrix *B)
@@ -394,53 +400,6 @@ vector solve(const matrix *A, const vector *b)
   return x;
 }
 
-vector solveCG(const matrix *A, const vector *b)
-{
-  const int rows = A->rows;
-  const int cols = A->cols;
-  const int size = b->size;
-  assert(rows == cols);
-  assert(rows == size);
-
-  vector x = new_vector(size);
-  vector r = *b;
-  double rho = vector_dot_mult(&r, &r);
-  vector p = r;
-  double residual = GetNormal(&r);
-
-  vector q = new_vector(size);
-  vector temp = new_vector(size);
-  double alpha, rho_old, beta, residual_old, residual_ori;
-
-  residual_ori = residual;
-  for (int iter = 1; iter <= 5000; iter++)
-  {
-    q = matrix_vector_mult(A, &p);
-    alpha = rho / (vector_dot_mult(&p, &q));
-    // x=vector_add(&x,scale_vector(&p,alpha));
-    // r=vector_add(&r,scale_vector(&q,-alpha));
-    temp = scale_vectorTrue(&p, alpha);
-    x = vector_add(&x, &temp);
-    temp = scale_vectorTrue(&q, -alpha);
-    r = vector_add(&r, &temp);
-    rho_old = rho;
-    rho = vector_dot_mult(&r, &r);
-    beta = rho / rho_old;
-    // p=vector_add(&r,scale_vector(&p,beta));
-    temp = scale_vectorTrue(&p, beta);
-    p = vector_add(&r, &temp);
-
-    residual_old = residual;
-    residual = GetNormal(&r);
-    if (residual / residual_ori < 1e-13)
-    {
-      break;
-    }
-  }
-
-  return x;
-}
-
 double GlobalSum(const int my_rank,
                  const int comm_sz,
                  const double local_in)
@@ -476,29 +435,6 @@ double GlobalSum(const int my_rank,
   return global_out;
 }
 
-void MatMult(const int my_rank, const int comm_sz,
-             const vector *Uold, vector *U)
-{
-  const int N = Uold->size;
-  void send_boundary_data(const int, const int,
-                          const double, const double);
-  void receive_boundary_data(const int, const int,
-                             double *, double *);
-  double ULEFT = 0.0;
-  double URIGHT = 0.0;
-
-  send_boundary_data(my_rank, comm_sz,
-                     vgetp(Uold, 1), vgetp(Uold, N));
-  receive_boundary_data(my_rank, comm_sz, &ULEFT, &URIGHT);
-
-  vgetp(U, 1) = -ULEFT + 2.0 * vgetp(Uold, 1) - vgetp(Uold, 2);
-  for (int i = 2; i < N; i++)
-  {
-    vgetp(U, i) = -vgetp(Uold, i - 1) + 2.0 * vgetp(Uold, i) - vgetp(Uold, i + 1);
-  }
-  vgetp(U, N) = -vgetp(Uold, N - 1) + 2.0 * vgetp(Uold, N) - URIGHT;
-}
-
 double dot_prod(const vector *vec1, const vector *vec2)
 {
   const int N = vec1->size;
@@ -510,167 +446,6 @@ double dot_prod(const vector *vec1, const vector *vec2)
   }
 
   return dot;
-}
-
-int ConjugateGradient(const int my_rank,
-                      const int comm_sz,
-                      const int MaxIters,
-                      const double TOL,
-                      const vector *rhs,
-                      vector *U)
-{
-  void MatMult(const int my_rank,
-               const int comm_sz,
-               const vector *Uin,
-               vector *Uout);
-  double GlobalSum(const int my_rank,
-                   const int comm_sz,
-                   const double local_in);
-  const int N = U->size;
-  int NumIters = 0;
-  int mflag = 0;
-  FILE *file;
-
-  vector r = new_vector(N);
-  vector d = new_vector(N);
-  vector Ad = new_vector(N);
-
-  MatMult(my_rank, comm_sz, U, &r);
-  double delta = 0.0;
-  for (int i = 1; i <= N; i++)
-  {
-    vget(r, i) = vgetp(rhs, i) - vget(r, i);
-    vget(d, i) = vget(r, i);
-    delta += pow(vget(r, i), 2);
-  }
-
-  delta = GlobalSum(my_rank, comm_sz, delta);
-  if (sqrt(delta) < TOL)
-  {
-    mflag = 1;
-  }
-
-  if (my_rank == 0)
-  {
-    file = fopen("residual.data", "w");
-    fprintf(file, "%24.15e\n", sqrt(delta));
-  }
-
-  while (mflag == 0)
-  {
-    NumIters++;
-    MatMult(my_rank, comm_sz, &d, &Ad);
-    double local_dot_prod = dot_prod(&d, &Ad);
-    double global_dot_prod = GlobalSum(my_rank, comm_sz,
-                                       local_dot_prod);
-    double alpha = delta / global_dot_prod;
-
-    double delta_old = delta;
-    delta = 0.0;
-    for (int i = 1; i <= N; i++)
-    {
-      vgetp(U, i) += alpha * vget(d, i);
-      vget(r, i) -= alpha * vget(Ad, i);
-      delta += pow(vget(r, i), 2);
-    }
-    delta = GlobalSum(my_rank, comm_sz, delta);
-
-    if (my_rank == 0)
-    {
-      fprintf(file, "%24.15e\n", sqrt(delta));
-    }
-
-    if (sqrt(delta) < TOL || NumIters == MaxIters)
-    {
-      mflag = 1;
-    }
-    else
-    {
-      double beta = delta / delta_old;
-      for (int i = 1; i <= N; i++)
-      {
-        vget(d, i) = vget(r, i) + beta * vget(d, i);
-      }
-    }
-  }
-
-  if (my_rank == 0)
-  {
-    printf("\n");
-    printf("  |----------------------------\n");
-    printf("  | Conjugate Gradient Results:\n");
-    printf("  |----------------------------\n");
-    printf("  |  MaxIters = %i\n", MaxIters);
-    printf("  |       TOL = %e\n", TOL);
-    printf("  |  NumIters = %i\n", NumIters);
-    printf("  |  residual = %e\n", sqrt(delta));
-    printf("  |----------------------------\n");
-    printf("\n");
-
-    fclose(file);
-  }
-
-  delete_vector(&r);
-  delete_vector(&d);
-  delete_vector(&Ad);
-
-  return NumIters;
-}
-
-void send_boundary_data(const int my_rank, const int comm_sz,
-                        const double U1, const double UN)
-{
-  const int last_rank = comm_sz - 1;
-  if (last_rank == 0)
-  {
-    return;
-  }
-  if (my_rank == 0)
-  {
-    MPI_Send(&UN, 1, MPI_DOUBLE, 1, 999, MPI_COMM_WORLD);
-  }
-  else if (my_rank == last_rank)
-  {
-    MPI_Send(&U1, 1, MPI_DOUBLE, last_rank - 1, 999,
-             MPI_COMM_WORLD);
-  }
-  else
-  {
-    MPI_Send(&U1, 1, MPI_DOUBLE, my_rank - 1, 999,
-             MPI_COMM_WORLD);
-    MPI_Send(&UN, 1, MPI_DOUBLE, my_rank + 1, 999,
-             MPI_COMM_WORLD);
-  }
-}
-
-void receive_boundary_data(const int my_rank,
-                           const int comm_sz,
-                           double *Uleft, double *Uright)
-{
-  const int last_rank = comm_sz - 1;
-  *Uleft = 0.0;
-  *Uright = 0.0;
-  if (last_rank == 0)
-  {
-    return;
-  }
-  if (my_rank == 0)
-  {
-    MPI_Recv(Uright, 1, MPI_DOUBLE, 1, 999,
-             MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  }
-  else if (my_rank == last_rank)
-  {
-    MPI_Recv(Uleft, 1, MPI_DOUBLE, last_rank - 1, 999,
-             MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  }
-  else
-  {
-    MPI_Recv(Uleft, 1, MPI_DOUBLE, my_rank - 1, 999,
-             MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(Uright, 1, MPI_DOUBLE, my_rank + 1, 999,
-             MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  }
 }
 
 double stdvector_dot_mult(const std::vector<double> &x, const std::vector<double> &y)
@@ -987,45 +762,6 @@ void all_together(const int my_rank,
   }
 
   MPI_Gatherv(pts_position.data(), pts_position.size(), MPI_DOUBLE, pts_position_all.data(), eachProcData.data(), disp.data(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  //MPI_Allgatherv(pts_position.data(), pts_position.size(), MPI_DOUBLE, pts_position_all.data(), eachProcData.data(), disp.data(), MPI_DOUBLE, MPI_COMM_WORLD);
+
 }
-
-/*
-vector solveCGpre(const matrix* A, const vector* b)
-{
-  const int rows = A->rows; const int cols = A->cols;
-  const int size = b->size;
-  assert(rows==cols); assert(rows==size);
-
-  vector x = new_vector(size);
-  vector r = *b;
-  vector z = r; // need to change if we have preconditioner
-  double rho = vector_dot_mult(&r,&z);
-  vector p = z;
-  double residual = GetNormal(&r);
-
-
-  vector q;
-  double alpha,rho_old, beta,residual_old,residual_ori;
-
-  residual_ori = residual;
-  for (int iter=1;iter<=5000;iter++){
-    q = matrix_vector_mult(A,&p);
-    alpha = rho/(vector_dot_mult(&p,&q));
-    x=vector_add(&x,scale_vector(&p,alpha));
-    r=vector_add(&r,scale_vector(&q,-alpha));
-    z = r;  // need to change if we have preconditioner
-    rho_old = rho;
-    rho =vector_dot_mult(&r,&z);
-    beta = rho / rho_old;
-    p=vector_add(&z,scale_vector(&p,beta));
-
-    residual_old = residual;
-    residual = GetNormal(&r);
-    if (residual/residual_ori < 1e-13){
-      break;
-    }
-  }
-
-  return x;
-}
-*/
