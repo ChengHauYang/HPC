@@ -1,6 +1,6 @@
 # $ISUHPC/lectures/lecture12/codes/matrix/Makefile
 #CC = mpicxx
-CC = mpicxx
+CXX = mpicxx
 FFLAGS = -O3 -Wall
 LFLAGS = -lm
 OBJECTS = main.o \
@@ -9,10 +9,10 @@ matrix.o
 .PHONY: clean
 
 main.exe: $(OBJECTS)
-	$(CC)  $(OBJECTS) -o main.exe $(LFLAGS)
+	$(CXX)  $(OBJECTS) -o main.exe $(LFLAGS)
 
 %.o: %.c
-	$(CC) $(FFLAGS) -c $<
+	$(CXX) $(FFLAGS) -c $<
 
 clean:
 	rm -f $(OBJECTS) main.exe
