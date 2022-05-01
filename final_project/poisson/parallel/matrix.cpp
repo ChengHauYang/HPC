@@ -748,7 +748,7 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
   double alpha, rho_old, beta, residual_old, residual_ori, local_dot_prod, global_dot_prod;
 
   residual_ori = residual;
-  for (int iter = 1; iter <= 2; iter++)
+  for (int iter = 1; iter <= 50000; iter++)
   {
     // q = A*p
     MatMult2D(my_rank, comm_sz, Pos_local_x, Pos_local_y, Number_local, p, q, m); // matrix-vector product -> across all processors
