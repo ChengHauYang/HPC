@@ -533,6 +533,58 @@ void send_boundary_data2D(const int my_rank, const int comm_sz,
   }
 }
 
+template<typename T>
+std::vector<T> slice(std::vector<T> const &v, int m, int n)
+{
+    auto first = v.cbegin() + m;
+    auto last = v.cbegin()  + n +1;
+ 
+    std::vector<T> vec(first, last);
+    return vec;
+}
+
+
+void send_boundary_data2D_new(const int my_rank, const int comm_sz,
+                          const std::vector<double> &Uold,const int m)
+{
+  const int last_rank = comm_sz - 1;
+  if (last_rank == 0)
+  {
+    return;
+  }
+
+  int old_size = m;
+
+  std::vector<double> Utop(Uold.end()-m,Uold.end());
+  std::vector<double> Ubot = slice(Uold,0,m-1);
+
+  //std::cout<< "m=" << m <<"\n";
+  //std::cout<< "utop size:" << Utop.size() <<"\n";
+  //std::cout<< "ubot size:" << Ubot.size() <<"\n";
+
+  if (my_rank == 0)
+  {
+    MPI_Send(&old_size, 1, MPI_INT, 1, 999, MPI_COMM_WORLD);
+    MPI_Send(&Utop[0], Utop.size(), MPI_DOUBLE, 1, 999, MPI_COMM_WORLD);
+  }
+  else if (my_rank == last_rank)
+  {
+    MPI_Send(&old_size, 1, MPI_INT, last_rank - 1, 999, MPI_COMM_WORLD);
+    MPI_Send(&Ubot[0], Ubot.size(), MPI_DOUBLE, last_rank - 1, 999,
+             MPI_COMM_WORLD);
+  }
+  else
+  {
+    MPI_Send(&old_size, 1, MPI_INT, my_rank - 1, 999, MPI_COMM_WORLD);
+    MPI_Send(&old_size, 1, MPI_INT, my_rank + 1, 999, MPI_COMM_WORLD);
+
+    MPI_Send(&Ubot[0], Ubot.size(), MPI_DOUBLE, my_rank - 1, 999,
+             MPI_COMM_WORLD);
+    MPI_Send(&Utop[0], Utop.size(), MPI_DOUBLE, my_rank + 1, 999,
+             MPI_COMM_WORLD);
+  }
+}
+
 void receive_boundary_data2D(const int my_rank,
                              const int comm_sz,
                              std::vector<double> &Ubot,
@@ -582,17 +634,21 @@ void receive_boundary_data2D(const int my_rank,
   }
 }
 
-// MatMult2D(my_rank, comm_sz, &Pos_local_x, &Pos_local_y, &Number_local, &p, &q);
 void MatMult2D(const int my_rank, const int comm_sz,
                const std::vector<int> &Pos_local_x,
                const std::vector<int> &Pos_local_y,
                const std::vector<double> &Number_local,
                const std::vector<double> &Uold,
-               std::vector<double> &U)
+               std::vector<double> &U,
+               const int m)
 {
 
   void print_double_vector_seq(const int comm_sz,const int my_rank, std::vector<double> const &input);
   
+
+  void send_boundary_data2D_new(const int my_rank, const int comm_sz,
+                          const std::vector<double> &Uold,const int m);
+
   void send_boundary_data2D(const int my_rank, const int comm_sz,
                           const std::vector<double> &Uold);
 
@@ -613,7 +669,8 @@ void MatMult2D(const int my_rank, const int comm_sz,
 
   //  std::vector<double> Umerge;
 
-  send_boundary_data2D(my_rank, comm_sz, Uold);
+  //send_boundary_data2D(my_rank, comm_sz, Uold);
+  send_boundary_data2D_new(my_rank, comm_sz, Uold,m);
   receive_boundary_data2D(my_rank, comm_sz, Ubot, Utop);
 
   // only for c++ 17
@@ -648,7 +705,8 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
                                const std::vector<double> &F_local,
                                const std::vector<int> &Pos_local_x,
                                const std::vector<int> &Pos_local_y,
-                               const std::vector<double> &Number_local)
+                               const std::vector<double> &Number_local,
+                               const int m)
 {
 
   double GlobalSum(const int my_rank,
@@ -660,7 +718,8 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
                  const std::vector<int> &Pos_local_y,
                  const std::vector<double> &Number_local,
                  const std::vector<double> &Uold,
-                 std::vector<double> &U);
+                 std::vector<double> &U,
+                 const int m);
 
   int size = F_local.size();
   std::vector<double> x(size);
@@ -694,7 +753,7 @@ std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
   for (int iter = 1; iter <= 2; iter++)
   {
     // q = A*p
-    MatMult2D(my_rank, comm_sz, Pos_local_x, Pos_local_y, Number_local, p, q); // matrix-vector product -> across all processors
+    MatMult2D(my_rank, comm_sz, Pos_local_x, Pos_local_y, Number_local, p, q, m); // matrix-vector product -> across all processors
 
     local_dot_prod = stdvector_dot_mult(p, q); // inner product of two vectors  -> across all processors
     global_dot_prod = GlobalSum(my_rank, comm_sz,

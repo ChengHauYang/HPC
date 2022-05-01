@@ -464,8 +464,8 @@ int main(int argc, char *argv[])
 
           if (mget(K, Sum_DivideNodesNum_processor + b, a) != 0)
           {
-            Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor_before1);
-            //            Pos_local_y_proc[i - 1].push_back(Sum_DivideNodesNum_processor + b);
+            //Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor_before1); // old send
+            Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor + m); // new send
             Pos_local_y_proc[i - 1].push_back(b);
             Number_local_proc[i - 1].push_back(mget(K, Sum_DivideNodesNum_processor + b, a));
           }
@@ -527,8 +527,9 @@ int main(int argc, char *argv[])
                                  const std::vector<double> &F_local,
                                  const std::vector<int> &Pos_local_x,
                                  const std::vector<int> &Pos_local_y,
-                                 const std::vector<double> &Number_local);
-  std::vector<double> u = solveCGMPI(my_rank, comm_sz, F_local, Pos_local_x, Pos_local_y, Number_local);
+                                 const std::vector<double> &Number_local,
+                                 const int m);
+  std::vector<double> u = solveCGMPI(my_rank, comm_sz, F_local, Pos_local_x, Pos_local_y, Number_local,m);
 
   void all_together(const int my_rank,
                     const int comm_sz,
@@ -539,6 +540,8 @@ int main(int argc, char *argv[])
   // print_double_vector(my_rank,u);
 
   all_together(my_rank, comm_sz, u, u_all);
+
+// do not need this on HPC
 
   if (my_rank == 0)
   {
@@ -564,6 +567,7 @@ int main(int argc, char *argv[])
     // Call python script to plot
     // system("python3.8 phase_plot.py");
   }
+
 
   u_all_size = u_all.size();
 
