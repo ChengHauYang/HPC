@@ -403,12 +403,12 @@ vector solveCG(const matrix *A, const vector *b)
   vector r = *b;
   double rho = vector_dot_mult(&r, &r);
 
-  printf("rho = %25.15f \n", rho);
+  //printf("rho = %25.15f \n", rho);
 
   vector p = r;
   double residual = GetNormal(&r);
 
-  printf("residual = %25.15f \n", residual);
+  //printf("residual = %25.15f \n", residual);
 
   vector q = new_vector(size);
   vector temp = new_vector(size);
@@ -419,7 +419,7 @@ vector solveCG(const matrix *A, const vector *b)
   {
     q = matrix_vector_mult(A, &p);
     alpha = rho / (vector_dot_mult(&p, &q));
-    printf("alpha = %25.15f \n", alpha);
+    //printf("alpha = %25.15f \n", alpha);
 
     // x=vector_add(&x,scale_vector(&p,alpha));
     // r=vector_add(&r,scale_vector(&q,-alpha));
@@ -430,7 +430,7 @@ vector solveCG(const matrix *A, const vector *b)
     rho_old = rho;
     rho = vector_dot_mult(&r, &r);
     beta = rho / rho_old;
-    printf("beta = %25.15f \n", beta);
+    //printf("beta = %25.15f \n", beta);
 
     // p=vector_add(&r,scale_vector(&p,beta));
     temp = scale_vectorTrue(&p, beta);

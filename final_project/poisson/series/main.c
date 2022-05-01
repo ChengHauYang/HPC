@@ -2,13 +2,21 @@
 #include <stdio.h>
 #include "matrix.h"
 #include "math.h"
+#include <time.h>
 
-int main()
+int main(int argc, char *argv[])
 {
 
+/*
   int m=0;
   printf("    Input m: ");
   scanf("%i",&m);
+*/
+
+  const double time1 = clock();
+
+  int m=0 ;
+  m = strtol(argv[1], NULL, 10);
 
   matrix Coords = new_matrix(m*m, 2); // x,y
   matrix NodesNum = new_matrix(2 * (m - 1) * (m - 1), 3);
@@ -229,7 +237,7 @@ int main()
     fclose(outfile);
 
     // Call python script to plot
-    system("python3.8 phase_plot.py");
+    //system("python3.8 phase_plot.py");
 
 
     /// Output Tecplot
@@ -251,6 +259,11 @@ int main()
         fprintf(outfiletec,"\n");
       }
     }
+
+   const double time2 = clock();
+   const double clock_time = ((double)((time2-time1))/((double)(CLOCKS_PER_SEC)));
+
+   printf(" clock_time = %11.5e (sec)\n",clock_time);
 
 
 }
