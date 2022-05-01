@@ -5,7 +5,7 @@
 # job standard output will go to the file slurm-%j.out (where %j is the job ID)
 
 #SBATCH --time=1:00:00   # walltime limit (HH:MM:SS)
-#SBATCH --nodes=1   # number of nodes
+#SBATCH --nodes=2   # number of nodes
 #SBATCH --ntasks-per-node=16    #  16 processor core(s) per node 
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
@@ -16,4 +16,4 @@ module load intel
 #mpirun -np 2  ./main.exe  > output2.data
 #mpirun -np 4  ./main.exe  > output4.data
 #mpirun -np 8  ./main.exe  > output8.data
-mpirun -np 16 ./main.exe  161 > output16.data
+mpirun -np 32 ./main.exe  161 > output32.data

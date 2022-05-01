@@ -6,7 +6,7 @@
 
 #SBATCH --time=1:00:00   # walltime limit (HH:MM:SS)
 #SBATCH --nodes=1   # number of nodes
-#SBATCH --ntasks-per-node=16    #  16 processor core(s) per node 
+#SBATCH --ntasks-per-node=8    #  16 processor core(s) per node 
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 module load intel
@@ -15,5 +15,5 @@ module load intel
 #mpirun -np 1  ./main.exe  81 > output1.data
 #mpirun -np 2  ./main.exe  > output2.data
 #mpirun -np 4  ./main.exe  > output4.data
-#mpirun -np 8  ./main.exe  > output8.data
-mpirun -np 16 ./main.exe  161 > output16.data
+mpirun -np 8  ./main.exe  161 > output8.data
+#mpirun -np 16 ./main.exe  321 > output16.data

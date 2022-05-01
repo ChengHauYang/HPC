@@ -543,6 +543,7 @@ int main(int argc, char *argv[])
 
 // do not need this on HPC
 
+/*
   if (my_rank == 0)
   {
     /// postprosessing
@@ -567,7 +568,7 @@ int main(int argc, char *argv[])
     // Call python script to plot
     // system("python3.8 phase_plot.py");
   }
-
+*/
 
   u_all_size = u_all.size();
 
