@@ -120,13 +120,12 @@ int main(int argc, char *argv[])
   MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-
-    // Get time
-     double time_start;
-         if (my_rank == 0)
-             {
-                       time_start = MPI_Wtime();
-                        }
+  // Get time
+  double time_start;
+  if (my_rank == 0)
+  {
+    time_start = MPI_Wtime();
+  }
   // pick m as 17 is better !
   // m-1 should be exactly divisible by the number of processors
 
@@ -318,7 +317,6 @@ int main(int argc, char *argv[])
       Fe_local[i - 1] = vget(Fe, i);
     }
 
-
     // send data from slaves to master and assembly
     if (my_rank != 0)
     {
@@ -383,10 +381,10 @@ int main(int argc, char *argv[])
 
   std::vector<int> DivideNodesNum_processor_proc(comm_sz - 1);
   std::vector<int> sparse_size_proc(comm_sz - 1);
-  std::vector<std::vector<int> > Pos_local_x_proc(comm_sz - 1);
-  std::vector<std::vector<int> > Pos_local_y_proc(comm_sz - 1);
-  std::vector<std::vector<double> > Number_local_proc(comm_sz - 1);
-  std::vector<std::vector<double> > F_local_proc(comm_sz - 1);
+  std::vector<std::vector<int>> Pos_local_x_proc(comm_sz - 1);
+  std::vector<std::vector<int>> Pos_local_y_proc(comm_sz - 1);
+  std::vector<std::vector<double>> Number_local_proc(comm_sz - 1);
+  std::vector<std::vector<double>> F_local_proc(comm_sz - 1);
 
   if (my_rank == 0)
   {
@@ -464,7 +462,7 @@ int main(int argc, char *argv[])
 
           if (mget(K, Sum_DivideNodesNum_processor + b, a) != 0)
           {
-            //Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor_before1); // old send
+            // Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor_before1); // old send
             Pos_local_x_proc[i - 1].push_back(a - Sum_DivideNodesNum_processor + m); // new send
             Pos_local_y_proc[i - 1].push_back(b);
             Number_local_proc[i - 1].push_back(mget(K, Sum_DivideNodesNum_processor + b, a));
@@ -521,7 +519,7 @@ int main(int argc, char *argv[])
     MPI_Recv(&Number_local[0], sparse_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     // std::cout << "receiving Number_local\n";
   }
-  //MPI_Barrier(MPI_COMM_WORLD);
+  // MPI_Barrier(MPI_COMM_WORLD);
 
   std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
                                  const std::vector<double> &F_local,
@@ -529,7 +527,7 @@ int main(int argc, char *argv[])
                                  const std::vector<int> &Pos_local_y,
                                  const std::vector<double> &Number_local,
                                  const int m);
-  std::vector<double> u = solveCGMPI(my_rank, comm_sz, F_local, Pos_local_x, Pos_local_y, Number_local,m);
+  std::vector<double> u = solveCGMPI(my_rank, comm_sz, F_local, Pos_local_x, Pos_local_y, Number_local, m);
 
   void all_together(const int my_rank,
                     const int comm_sz,
@@ -541,34 +539,34 @@ int main(int argc, char *argv[])
 
   all_together(my_rank, comm_sz, u, u_all);
 
-// do not need this on HPC
+  // do not need this on HPC
 
-/*
-  if (my_rank == 0)
-  {
-    /// postprosessing
-
-    /// Print solution to file
-    char filename[] = "output.data";
-
-    // open file
-    FILE *outfile = fopen(filename, "w");
-
-    // output data
-    for (int i = 1; i <= m * m; i++)
+  /*
+    if (my_rank == 0)
     {
-      fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 1));
-      fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 2));
-      fprintf(outfile, "%25.20e\n", u_all[i - 1]);
+      /// postprosessing
+
+      /// Print solution to file
+      char filename[] = "output.data";
+
+      // open file
+      FILE *outfile = fopen(filename, "w");
+
+      // output data
+      for (int i = 1; i <= m * m; i++)
+      {
+        fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 1));
+        fprintf(outfile, "%25.20e  ", mget(Global_Coords, i, 2));
+        fprintf(outfile, "%25.20e\n", u_all[i - 1]);
+      }
+
+      // close file
+      fclose(outfile);
+
+      // Call python script to plot
+      // system("python3.8 phase_plot.py");
     }
-
-    // close file
-    fclose(outfile);
-
-    // Call python script to plot
-    // system("python3.8 phase_plot.py");
-  }
-*/
+  */
 
   u_all_size = u_all.size();
 
@@ -584,8 +582,8 @@ int main(int argc, char *argv[])
 
   int NodesAddPerProc = m * ((m - 1) / comm_sz);
   int NodesPerProc = NodesAddPerProc + m;
-  //std::cout << "NodesAddPerProc:" << NodesAddPerProc << "\n";
-  //std::cout << "NodesPerProc:" << NodesPerProc << "\n";
+  // std::cout << "NodesAddPerProc:" << NodesAddPerProc << "\n";
+  // std::cout << "NodesPerProc:" << NodesPerProc << "\n";
 
   /// Output Tecplot
   FILE *outfiletec = NULL;
@@ -620,12 +618,12 @@ int main(int argc, char *argv[])
 
   fclose(outfiletec);
 
-    if (my_rank == 0)
-    {
-      double time_end = MPI_Wtime();
-      double time_elapsed = time_end - time_start;
-      printf("     Elapsed time = %20.13e\n", time_elapsed);
-    }
+  if (my_rank == 0)
+  {
+    double time_end = MPI_Wtime();
+    double time_elapsed = time_end - time_start;
+    printf("     Elapsed time = %20.13e\n", time_elapsed);
+  }
 
-  //MPI_Barrier(MPI_COMM_WORLD);
+  // MPI_Barrier(MPI_COMM_WORLD);
 }

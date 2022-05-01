@@ -1,6 +1,6 @@
 # $ISUHPC/lectures/lecture12/codes/matrix/Makefile
 CC = gcc
-FFLAGS = -O3 -Wall
+FFLAGS = -O3 -Wall 
 LFLAGS = -lm
 OBJECTS = main.o \
 matrix.o 
