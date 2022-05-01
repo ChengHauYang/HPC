@@ -415,7 +415,7 @@ vector solveCG(const matrix *A, const vector *b)
   double alpha, rho_old, beta, residual_old, residual_ori;
 
   residual_ori = residual;
-  for (int iter = 1; iter <= 5000; iter++)
+  for (int iter = 1; iter <= 50000; iter++)
   {
     q = matrix_vector_mult(A, &p);
     alpha = rho / (vector_dot_mult(&p, &q));
