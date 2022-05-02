@@ -381,10 +381,10 @@ int main(int argc, char *argv[])
 
   std::vector<int> DivideNodesNum_processor_proc(comm_sz - 1);
   std::vector<int> sparse_size_proc(comm_sz - 1);
-  std::vector<std::vector<int>> Pos_local_x_proc(comm_sz - 1);
-  std::vector<std::vector<int>> Pos_local_y_proc(comm_sz - 1);
-  std::vector<std::vector<double>> Number_local_proc(comm_sz - 1);
-  std::vector<std::vector<double>> F_local_proc(comm_sz - 1);
+  std::vector<std::vector<int> > Pos_local_x_proc(comm_sz - 1);
+  std::vector<std::vector<int> > Pos_local_y_proc(comm_sz - 1);
+  std::vector<std::vector<double> > Number_local_proc(comm_sz - 1);
+  std::vector<std::vector<double> > F_local_proc(comm_sz - 1);
 
   if (my_rank == 0)
   {
