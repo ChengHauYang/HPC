@@ -533,6 +533,7 @@ void send_boundary_data2D(const int my_rank, const int comm_sz,
   }
 }
 
+/*
 template <typename T>
 std::vector<T> slice(std::vector<T> const &v, int m, int n)
 {
@@ -542,6 +543,7 @@ std::vector<T> slice(std::vector<T> const &v, int m, int n)
   std::vector<T> vec(first, last);
   return vec;
 }
+*/
 
 void send_boundary_data2D_new(const int my_rank, const int comm_sz,
                               const std::vector<double> &Uold, const int m)
@@ -555,7 +557,7 @@ void send_boundary_data2D_new(const int my_rank, const int comm_sz,
   int old_size = m;
 
   std::vector<double> Utop(Uold.end() - m, Uold.end());
-  std::vector<double> Ubot = slice(Uold, 0, m - 1);
+  std::vector<double> Ubot(Uold.begin(), Uold.begin() + m);
 
   // std::cout<< "m=" << m <<"\n";
   // std::cout<< "utop size:" << Utop.size() <<"\n";
