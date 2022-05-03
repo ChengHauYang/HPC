@@ -618,12 +618,46 @@ int main(int argc, char *argv[])
 
   fclose(outfiletec);
 
+
+  /// calculate L2 norm
+  double global_error;
+  double local_error = 0;
+  for (int e = 1; e <= Local_Nele; e++)
+  { // Loop over element
+
+    // center point
+    double xg = (mget(Global_Coords, (int)mget(Local_NodesNum, e, 1), 1) 
+    + mget(Global_Coords, (int)mget(Local_NodesNum, e, 2), 1) 
+    + mget(Global_Coords, (int)mget(Local_NodesNum, e, 3), 1)) / 3;
+
+    double yg = (mget(Global_Coords, (int)mget(Local_NodesNum, e, 1), 2) 
+    + mget(Global_Coords, (int)mget(Local_NodesNum, e, 2), 2) 
+    + mget(Global_Coords, (int)mget(Local_NodesNum, e, 3), 2)) / 3;
+
+    double u_exact = sin(M_PI * xg) * sin(M_PI * yg);
+
+    double u_numerical=(u_all[(int)mget(Local_NodesNum, e, 1)-1] 
+    + u_all[(int)mget(Local_NodesNum, e, 2)-1] 
+    + u_all[(int)mget(Local_NodesNum, e, 3)-1])/3;
+    
+    double Area = 1 / ((double)m-1) / ((double)m-1) /2;
+    local_error += Area* (u_exact-u_numerical)*(u_exact-u_numerical);
+  }
+
+  MPI_Reduce(&local_error,&global_error,1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
+
+  if (my_rank == 0)
+  {
+    printf("     L2 norm = %20.13e\n", sqrt(global_error));
+  }
+
   if (my_rank == 0)
   {
     double time_end = MPI_Wtime();
     double time_elapsed = time_end - time_start;
     printf("     Elapsed time = %20.13e\n", time_elapsed);
   }
+
 
   // MPI_Barrier(MPI_COMM_WORLD);
 }
