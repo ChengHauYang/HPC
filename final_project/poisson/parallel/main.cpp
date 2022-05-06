@@ -230,6 +230,10 @@ int main(int argc, char *argv[])
   matrix Ke = new_matrix(3, 3);
   vector Fe = new_vector(3);
 
+  std::vector<int> Pos_global_x={};
+  std::vector<int> Pos_global_y={};
+  std::vector<double> Number_global={};
+
   // My own mpi type
   MPI_Datatype Matrixtype;
   MPI_Type_contiguous(9, MPI_DOUBLE, &Matrixtype);
@@ -359,6 +363,22 @@ int main(int argc, char *argv[])
             // printf("num_global=%d \n", num_global[i - 1]);
 
             mget(K, num_global[i - 1], num_global[j - 1]) = mget(K, num_global[i - 1], num_global[j - 1]) + Ke_local[count_num];
+/*
+            int tnum=0;
+            for (int num=0;num<Pos_global_x.size();num++){
+              if (num_global[i - 1]==Pos_global_x[num]) && (num_global[j - 1]==Pos_global_y[num]){
+                Number_global[num] =  Number_global[num] + Ke_local[count_num];
+              }else{
+                tnum++;
+              }
+              if (tnum==Pos_global_x.size()){
+               Pos_global_x.push_back(num_global[i - 1]);
+               Pos_global_y.push_back(num_global[j - 1]);
+               Number_global.push_back(Ke_local[count_num]); 
+              }
+            }
+*/
+
           }
         }
 
@@ -369,6 +389,12 @@ int main(int argc, char *argv[])
       }
     }
   }
+
+  delete_vector(&tri_nodes_number);
+  delete_matrix(&Me);
+  delete_matrix(&Be);
+  delete_matrix(&Ke);
+  delete_vector(&Fe);
 
   /// distribute from master to slaves for K and F
   int DivideNodesNum_processor = 0;
@@ -531,6 +557,10 @@ int main(int argc, char *argv[])
   }
   // MPI_Barrier(MPI_COMM_WORLD);
 
+
+  delete_matrix(&K);
+  delete_vector(&F);
+
   std::vector<double> solveCGMPI(const int my_rank, const int comm_sz,
                                  const std::vector<double> &F_local,
                                  const std::vector<int> &Pos_local_x,
@@ -551,7 +581,7 @@ int main(int argc, char *argv[])
 
   // do not need this on HPC
 
-  
+  /*
     if (my_rank == 0)
     {
       /// postprosessing
@@ -576,7 +606,7 @@ int main(int argc, char *argv[])
       // Call python script to plot
       // system("python3.8 phase_plot.py");
     }
-  
+  */
 
   u_all_size = u_all.size();
 
