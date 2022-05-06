@@ -401,10 +401,13 @@ int main(int argc, char *argv[])
       mget(K, (int)vget(boundary, i), (int)vget(boundary, i)) = 1;
     }
 
+    // how many nodes
+    /*
     int DivideNodesNum[comm_sz];
     int commun_num = floor(m / comm_sz);
 
-    // how many nodes
+
+    
     for (int i = 0; i < comm_sz - 1; i++)
     {
       DivideNodesNum[i] = commun_num;
@@ -412,7 +415,11 @@ int main(int argc, char *argv[])
     DivideNodesNum[comm_sz - 1] = m - commun_num * (comm_sz - 1);
 
     DivideNodesNum_processor = DivideNodesNum[0] * m;
-    // printf("DivideNodesNum_processor=%d \n", DivideNodesNum_processor);
+    */
+
+    DivideNodesNum_processor = floor(m * m / comm_sz);
+
+    // for master
     for (int b = 1; b <= DivideNodesNum_processor; b++)
     {
       for (int a = 1; a <= Global_Nnodes; a++)
@@ -445,8 +452,11 @@ int main(int argc, char *argv[])
         Sum_DivideNodesNum_processor_before1 = Sum_DivideNodesNum_processor - DivideNodesNum_processor_proc[i - 2];
       }
 
-      DivideNodesNum_processor_proc[i - 1] = DivideNodesNum[i] * m;
-      // printf("DivideNodesNum_processor=%d \n", DivideNodesNum_processor_proc[i - 1]);
+      if (i < comm_sz -1){
+        DivideNodesNum_processor_proc[i - 1] = floor(m * m / comm_sz);
+      } else{
+        DivideNodesNum_processor_proc[i - 1] = m*m - floor(m * m / comm_sz) * (comm_sz - 1);
+      }
 
       Pos_local_x_proc[i - 1] = {};
       Pos_local_y_proc[i - 1] = {};
@@ -541,7 +551,7 @@ int main(int argc, char *argv[])
 
   // do not need this on HPC
 
-  /*
+  
     if (my_rank == 0)
     {
       /// postprosessing
@@ -566,7 +576,7 @@ int main(int argc, char *argv[])
       // Call python script to plot
       // system("python3.8 phase_plot.py");
     }
-  */
+  
 
   u_all_size = u_all.size();
 
